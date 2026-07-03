@@ -25,11 +25,15 @@ pnpm run reset:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content
+pnpm run content:export -- --report
+pnpm run audit:content -- --report
 pnpm run build
 pnpm run check
 ```
 
 If commands are not implemented yet, follow `docs/plans/master-plan.md` and the phase-specific plans.
+
+- Local JSON reports can be generated under ignored `reports/` with `pnpm run content:export -- --report` and `pnpm run audit:content -- --report`.
 
 ## Verification checklist
 

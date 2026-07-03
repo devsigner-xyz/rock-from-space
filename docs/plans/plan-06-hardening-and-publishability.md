@@ -25,6 +25,7 @@ Some hardening is already implemented: Vitest, integration fixtures, determinist
 - Config/CLI option to fail on broken wikilinks.
 - GitHub Actions CI running `pnpm install --frozen-lockfile` and `pnpm run deploy:check`.
 - Initial public project process docs: `CONTRIBUTING.md`, `SECURITY.md` and `agent/checklists/release.md`.
+- Initial local structured reports for export/audit via `content:export -- --report` and `audit:content -- --report`.
 
 ## Remaining tasks
 
@@ -70,7 +71,7 @@ Add tests and implementation for:
 
 - HTML/iframe/embed detection;
 - allowed embed domains;
-- structured JSON audit reports;
+- richer structured JSON audit reports beyond the initial local report output;
 - blocked backend-only env names;
 - malformed frontmatter.
 

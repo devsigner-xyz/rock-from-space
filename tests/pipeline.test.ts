@@ -41,7 +41,18 @@ describe('content pipeline integration', () => {
       blockedFrontmatterFields: ['private', 'secret', 'internal']
     });
 
+    expect(result.scanned).toEqual([
+      'index.md',
+      'Notes/Draft Beta.md',
+      'Notes/Private/Ignored.md',
+      'Notes/Public Alpha.md',
+      'Topics/Markdown.md'
+    ]);
     expect(result.exported).toEqual(['index.md', 'Notes/Public Alpha.md', 'Topics/Markdown.md']);
+    expect(result.skipped).toEqual([
+      { path: 'Notes/Draft Beta.md', reason: 'not-published' },
+      { path: 'Notes/Private/Ignored.md', reason: 'not-allowed' }
+    ]);
     await expect(readFile(path.join(outputRoot, 'Notes/Public Alpha.md'), 'utf8')).resolves.toContain('title: "Public Alpha"');
     await expect(readFile(path.join(outputRoot, 'Notes/Draft Beta.md'), 'utf8')).rejects.toThrow();
     await expect(readFile(path.join(outputRoot, 'Notes/Private/Ignored.md'), 'utf8')).rejects.toThrow();
@@ -97,6 +108,7 @@ describe('content pipeline integration', () => {
       publish,
       failOnBrokenWikilinks: false
     });
+    expect(warningResult.scanned).toEqual(['broken-link-content/Notes/Broken.md']);
     expect(warningResult.failures).toEqual([]);
     expect(warningResult.warnings).toEqual(['Notes/Broken.md: unresolved wikilink [[Missing Target]]']);
 

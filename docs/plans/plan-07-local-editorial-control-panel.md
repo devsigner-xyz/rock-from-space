@@ -108,14 +108,14 @@ Cons:
 ## Recommended sequencing
 
 1. Complete Plan 04 collection model.
-2. Add structured audit/report output.
+2. Use existing structured export/audit report output as the read model for operator workflows.
 3. Add CLI commands for list/status/toggle/dry-run.
 4. Only then prototype a local web control panel.
 
 ## Deliverables for a first spike
 
 - `rfs status` or script equivalent listing public/draft/ignored/blocked notes.
-- JSON audit/export report files.
+- JSON audit/export report files exist via `content:export -- --report` and `audit:content -- --report`.
 - A design doc for local web panel boundaries.
 - No public admin route.
 

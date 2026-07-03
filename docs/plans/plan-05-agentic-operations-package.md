@@ -26,6 +26,7 @@ The repo should include reusable agent materials that humans can read and agents
 
 ```text
 agent/skills/rock-from-space-operator/SKILL.md
+agent/prompts/publish-from-vault.md
 agent/prompts/review-public-output.md
 agent/prompts/add-collection.md
 agent/checklists/pre-deploy.md
@@ -73,7 +74,7 @@ Do not implement MCP yet. Document possible operations:
 - update frontmatter;
 - run dry-run export;
 - run audit;
-- return report JSON.
+- return report JSON from `content:export -- --report` and `audit:content -- --report`.
 
 The design must keep file ownership explicit and avoid exposing private vault data to a public site.
 

@@ -26,3 +26,6 @@ Thumbs.db
 # TypeScript/cache
 *.tsbuildinfo
 .cache/
+
+# Local generated reports
+reports/

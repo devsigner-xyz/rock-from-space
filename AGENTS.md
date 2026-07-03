@@ -83,6 +83,8 @@ pnpm run reset:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content
+pnpm run content:export -- --report
+pnpm run audit:content -- --report
 pnpm run test
 pnpm run build
 pnpm run check
@@ -138,7 +140,7 @@ pnpm install --frozen-lockfile
 pnpm run deploy:check
 ```
 
-Keep `deploy:check` as the canonical CI gate for production readiness: public export, index generation, content audit, Astro build, typecheck and tests.
+Keep `deploy:check` as the canonical CI gate for production readiness: public export, index generation, content audit, Astro build, typecheck and tests. Use `pnpm run content:export -- --report` and `pnpm run audit:content -- --report` when an agent or local operator needs structured JSON evidence under ignored `reports/`.
 
 ## Deployment rules
 

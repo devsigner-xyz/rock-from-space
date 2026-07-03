@@ -19,6 +19,8 @@ pnpm run reset:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content
+pnpm run content:export -- --report
+pnpm run audit:content -- --report
 pnpm run build
 pnpm run check
 pnpm run deploy:check
@@ -52,6 +54,7 @@ git grep -n -I -E '/Users/|/home/|C:\\Users\\' -- content src/generated dist ':!
 
 Expected result:
 
+- [ ] Optional local JSON reports under ignored `reports/` are generated when an agent/operator needs structured evidence.
 - [ ] No private project names or private source paths in public output.
 - [ ] No credential-like values in source or generated public artifacts.
 - [ ] No unpublished draft content in `content/`, `src/generated/` or `dist/`.

@@ -99,6 +99,8 @@ pnpm run reset:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content
+pnpm run content:export -- --report
+pnpm run audit:content -- --report
 pnpm run test
 pnpm run build
 pnpm run check
@@ -116,7 +118,7 @@ pnpm install --frozen-lockfile
 pnpm run deploy:check
 ```
 
-`deploy:check` exports public content, generates indexes, audits the public surface, builds Astro and runs typecheck/tests.
+`deploy:check` exports public content, generates indexes, audits the public surface, builds Astro and runs typecheck/tests. For agent/operator workflows, `content:export` and `audit:content` also support `-- --report` to write ignored local JSON reports under `reports/`.
 
 ## Security baseline
 

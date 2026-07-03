@@ -25,7 +25,9 @@ export interface ExportPublicContentOptions {
 }
 
 export interface ExportPublicContentResult {
+  scanned: string[];
   exported: string[];
+  skipped: Array<{ path: string; reason: 'not-allowed' | 'not-published' }>;
 }
 
 export async function exportPublicContent(options: ExportPublicContentOptions): Promise<ExportPublicContentResult> {
@@ -33,15 +35,24 @@ export async function exportPublicContent(options: ExportPublicContentOptions): 
   await mkdir(options.outputRoot, { recursive: true });
 
   const files = await listMarkdownFiles(options.vaultRoot);
+  const scanned: string[] = [];
   const exported: string[] = [];
+  const skipped: ExportPublicContentResult['skipped'] = [];
 
   for (const absolute of files) {
     const relative = toPosix(path.relative(options.vaultRoot, absolute));
-    if (!isAllowed(relative, options.allow, options.ignore)) continue;
+    scanned.push(relative);
+    if (!isAllowed(relative, options.allow, options.ignore)) {
+      skipped.push({ path: relative, reason: 'not-allowed' });
+      continue;
+    }
 
     const source = await readFile(absolute, 'utf8');
     const parsed = parseMarkdown(source);
-    if (parsed.frontmatter[options.publish.requireField] !== options.publish.requireValue) continue;
+    if (parsed.frontmatter[options.publish.requireField] !== options.publish.requireValue) {
+      skipped.push({ path: relative, reason: 'not-published' });
+      continue;
+    }
 
     for (const blocked of options.blockedFrontmatterFields) {
       if (Object.hasOwn(parsed.frontmatter, blocked)) {
@@ -58,7 +69,11 @@ export async function exportPublicContent(options: ExportPublicContentOptions): 
     exported.push(relative);
   }
 
-  return { exported: exported.sort((a, b) => a.localeCompare(b)) };
+  return {
+    scanned: scanned.sort((a, b) => a.localeCompare(b)),
+    exported: exported.sort((a, b) => a.localeCompare(b)),
+    skipped: skipped.sort((a, b) => a.path.localeCompare(b.path))
+  };
 }
 
 export interface BuildContentIndexesOptions {
@@ -183,11 +198,13 @@ export interface AuditPublicContentOptions {
 }
 
 export interface AuditPublicContentResult {
+  scanned: string[];
   failures: string[];
   warnings: string[];
 }
 
 export async function auditPublicContent(options: AuditPublicContentOptions): Promise<AuditPublicContentResult> {
+  const scanned: string[] = [];
   const failures: string[] = [];
   const warnings: string[] = [];
 
@@ -195,6 +212,7 @@ export async function auditPublicContent(options: AuditPublicContentOptions): Pr
     const files = await collectTextFiles(root);
     for (const file of files) {
       const relative = toPosix(path.relative(options.cwd, file));
+      scanned.push(relative);
       const text = await readFile(file, 'utf8');
       for (const pattern of options.forbiddenPatterns) {
         if (text.toLowerCase().includes(pattern.toLowerCase())) {
@@ -237,7 +255,7 @@ export async function auditPublicContent(options: AuditPublicContentOptions): Pr
     }
   }
 
-  return { failures, warnings };
+  return { scanned: Array.from(new Set(scanned)).sort((a, b) => a.localeCompare(b)), failures, warnings };
 }
 
 async function collectTextFiles(root: string): Promise<string[]> {

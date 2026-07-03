@@ -148,6 +148,8 @@ Current repository support:
 - `deploy:check` exists and is used by GitHub Actions CI.
 - `preview:prod` exists for local production-like preview on `127.0.0.1:4321`.
 - Generic static hosting documentation exists in `docs/deployment/static-hosting.md`.
+- `content:export -- --report` writes a local ignored export report with scanned/exported/skipped paths.
+- `audit:content -- --report` writes a local ignored audit report with scanned files, warnings and failures.
 - Production smoke checklist exists in `docs/deployment/smoke-checklist.md`.
 
 Provider-specific deploy commands should still wait until a canonical first provider is selected.

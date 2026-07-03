@@ -197,7 +197,7 @@ Deliverables:
 - local-only control panel concept;
 - note publication status model;
 - dry-run/diff safety model;
-- structured reports required before UI work;
+- structured reports available for operator workflows before UI work;
 - no public admin route by default.
 
 Detailed plan: `docs/plans/plan-07-local-editorial-control-panel.md`.
