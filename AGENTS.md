@@ -146,7 +146,7 @@ The deploy check should eventually include:
 4. Astro build;
 5. typecheck/tests.
 
-`pnpm run check` is expected to include the fast unit test suite.
+`pnpm run check` is expected to include the fast unit test suite. Keep export/index/audit logic testable through reusable modules and integration fixtures, with CLI scripts as thin wrappers.
 
 Do not deploy unless explicitly asked.
 

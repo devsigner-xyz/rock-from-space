@@ -129,4 +129,4 @@ Rock from Space includes portable agent materials:
 
 Agents should treat `content/` and `dist/` as public surfaces and run audit/build checks before declaring work complete.
 
-`pnpm run check` runs Astro validation, TypeScript typechecking and the unit test suite.
+`pnpm run check` runs Astro validation, TypeScript typechecking and the unit test suite. The test suite includes pure content utilities and integration fixtures for export/index/audit behavior.
