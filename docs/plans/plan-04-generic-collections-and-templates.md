@@ -49,6 +49,45 @@ Initial implementation can keep deriving `notes` and `topics` from the current c
 - Backward compatibility for `/notes/` and `/topics/`.
 - Tests for collection routing and schema failures.
 
+## Subplan 04A — Flexible Obsidian frontmatter support
+
+Goal: support real Obsidian Properties/YAML while keeping Rock from Space strict about what becomes public.
+
+Current limitation: the first implementation uses a minimal YAML parser that supports strings, booleans and inline arrays such as `topics: ["Markdown", "Privacy"]`. Obsidian can also write valid YAML in richer forms, including multiline arrays, dates and additional custom properties. The project should parse that broader Obsidian-compatible YAML, then validate and normalize only the public contract.
+
+Recommended boundary:
+
+```text
+Obsidian-compatible YAML frontmatter
+        ↓ parse with a real YAML/frontmatter parser
+unknown/editorial frontmatter
+        ↓ validate collection schema with Zod
+normalized public frontmatter
+        ↓ export to content/
+```
+
+Tasks:
+
+- [ ] Replace the custom `parseSimpleYaml` implementation with a real parser such as `yaml` or `gray-matter`.
+- [ ] Add fixtures for Obsidian-style multiline properties:
+  - `topics` as a YAML list;
+  - extra editorial/private fields;
+  - dates or non-string metadata that should be ignored unless schema-approved.
+- [ ] Keep public validation strict after parsing:
+  - `title` must be a non-empty string;
+  - `publish` must be boolean;
+  - `topics`, when present, must normalize to an array of non-empty strings.
+- [ ] Introduce a per-collection public-field allowlist so extra Obsidian properties can exist in source notes without leaking into `content/`.
+- [ ] Keep blocked/private fields fail-closed for publishable notes, even when the parser supports richer YAML.
+- [ ] Document the supported Obsidian Properties shape in README and AGENTS.
+- [ ] Add regression tests proving multiline Obsidian YAML exports and audits correctly.
+
+Non-goals for this subplan:
+
+- Do not make arbitrary frontmatter public by default.
+- Do not depend on the Obsidian app runtime.
+- Do not turn frontmatter into a hosted CMS model; it remains file-first Markdown metadata.
+
 ## Tasks
 
 ### 1. Model collections
