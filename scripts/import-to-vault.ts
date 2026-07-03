@@ -31,7 +31,7 @@ if (typeof source !== 'string' || typeof target !== 'string') {
 }
 
 if (!apply) {
-  console.log('Dry run only. Pass --apply to write imported notes.');
+  console.log('Dry run: no files will be written. Pass --apply to create or update imported notes.');
 }
 
 const sourcePath = resolveInsideRoot(source);
@@ -53,3 +53,5 @@ for (const item of items) {
   if (apply) await writeFile(notePath, markdown, 'utf8');
   console.log(`${apply ? 'Imported' : 'Would import'}: Notes/${filename} (${slugify(item.title)})`);
 }
+
+console.log(`${apply ? 'Import complete' : 'Dry run complete'}: ${items.length} note(s) ${apply ? 'written' : 'planned'} in Notes/.`);

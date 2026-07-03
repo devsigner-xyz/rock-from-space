@@ -76,7 +76,6 @@ for (const note of notePages) {
 const topics = Array.from(topicsByTitle.values()).sort((a, b) => a.title.localeCompare(b.title));
 const links = pages.flatMap((page) => page.links.map((target) => ({ from: page.slug, to: titleToSlug.get(target) ?? slugify(target), label: target })));
 const meta = {
-  generatedAt: new Date().toISOString(),
   pageCount: pages.length,
   noteCount: notePages.length,
   topicCount: topics.length,

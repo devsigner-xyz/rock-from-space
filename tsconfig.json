@@ -11,8 +11,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node", "vitest/globals"]
   },
-  "include": [".astro/types.d.ts", "src/**/*", "scripts/**/*", "astro.config.mjs"],
+  "include": [".astro/types.d.ts", "src/**/*", "scripts/**/*", "tests/**/*", "astro.config.mjs"],
   "exclude": ["dist", "node_modules"]
 }

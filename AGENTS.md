@@ -85,6 +85,7 @@ pnpm run import:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content
+pnpm run test
 pnpm run build
 pnpm run check
 pnpm run deploy:check
@@ -144,6 +145,8 @@ The deploy check should eventually include:
 3. audit content/privacy;
 4. Astro build;
 5. typecheck/tests.
+
+`pnpm run check` is expected to include the fast unit test suite.
 
 Do not deploy unless explicitly asked.
 

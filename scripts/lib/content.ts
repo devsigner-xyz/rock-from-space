@@ -38,7 +38,8 @@ const ConfigSchema = z.object({
   privacy: z.object({
     forbiddenPatterns: z.array(z.string()),
     blockedFrontmatterFields: z.array(z.string()).default([]),
-    allowedEmbedDomains: z.array(z.string()).default([])
+    allowedEmbedDomains: z.array(z.string()).default([]),
+    failOnBrokenWikilinks: z.boolean().default(false)
   }),
   deploy: z.object({
     target: z.string(),
@@ -133,8 +134,12 @@ export function isAllowed(relativePath: string, allow: string[], ignore: string[
 }
 
 function matchesPattern(value: string, pattern: string): boolean {
+  if (pattern.startsWith('**/') && pattern.endsWith('/**')) {
+    const segment = pattern.slice(3, -3);
+    return value === segment || value.startsWith(`${segment}/`) || value.includes(`/${segment}/`);
+  }
   if (pattern.endsWith('/**')) return value.startsWith(pattern.slice(0, -3));
-  if (pattern.startsWith('**/')) return value.includes(pattern.slice(3).replace('/**', ''));
+  if (pattern.startsWith('**/')) return value.endsWith(pattern.slice(3));
   return value === pattern;
 }
 

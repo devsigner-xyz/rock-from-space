@@ -98,6 +98,7 @@ pnpm run import:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content
+pnpm run test
 pnpm run build
 pnpm run check
 pnpm run deploy:check
@@ -127,3 +128,5 @@ Rock from Space includes portable agent materials:
 - `agent/checklists/` for verification.
 
 Agents should treat `content/` and `dist/` as public surfaces and run audit/build checks before declaring work complete.
+
+`pnpm run check` runs Astro validation, TypeScript typechecking and the unit test suite.

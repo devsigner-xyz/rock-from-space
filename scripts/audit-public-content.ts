@@ -3,6 +3,7 @@ import path from 'node:path';
 import { extractWikilinks, listMarkdownFiles, parseMarkdown, readConfig, resolveInsideRoot, slugify, toPosix } from './lib/content.ts';
 
 const config = await readConfig();
+const failOnBrokenWikilinks = config.privacy.failOnBrokenWikilinks || process.argv.includes('--fail-on-broken-wikilinks');
 const scanRoots = [config.publish.output, 'src/generated'];
 const failures: string[] = [];
 const warnings: string[] = [];
@@ -48,7 +49,9 @@ for (const file of markdownFiles) {
   const parsed = parseMarkdown(await readFile(file, 'utf8'));
   for (const link of extractWikilinks(parsed.body)) {
     if (!knownSlugs.has(slugify(link))) {
-      warnings.push(`${toPosix(path.relative(contentRoot, file))}: unresolved wikilink [[${link}]]`);
+      const message = `${toPosix(path.relative(contentRoot, file))}: unresolved wikilink [[${link}]]`;
+      if (failOnBrokenWikilinks) failures.push(message);
+      else warnings.push(message);
     }
   }
 }
