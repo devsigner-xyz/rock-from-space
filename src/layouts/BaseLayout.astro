@@ -1,0 +1,29 @@
+---
+import '../styles/global.css';
+
+const { title = 'Rock from Space Demo', description = 'An Obsidian-compatible Markdown vault rendered with Astro.' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="site-title" href="/">Rock from Space</a>
+      <nav aria-label="Primary navigation">
+        <a href="/notes/">Notes</a>
+        <a href="/topics/">Topics</a>
+      </nav>
+    </header>
+    <main class="page-shell">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>Portable editorial source. Audited public export. Cloud-ready static website.</p>
+    </footer>
+  </body>
+</html>

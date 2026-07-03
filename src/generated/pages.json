@@ -1,0 +1,111 @@
+[
+  {
+    "title": "Astro static rendering",
+    "slug": "astro-static-rendering",
+    "path": "Notes/Astro static rendering.md",
+    "kind": "note",
+    "topics": [
+      "Markdown",
+      "Static Sites"
+    ],
+    "body": "# Astro static rendering\n\nAstro turns generated content indexes into deployable static HTML.\n\nThe public site reads from exported content, never directly from a private vault.",
+    "links": [],
+    "backlinks": [
+      "home"
+    ],
+    "bodyHtml": "<h1>Astro static rendering</h1>\n<p>Astro turns generated content indexes into deployable static HTML.</p>\n<p>The public site reads from exported content, never directly from a private vault.</p>"
+  },
+  {
+    "title": "Imported public note",
+    "slug": "imported-public-note",
+    "path": "Notes/Imported public note.md",
+    "kind": "note",
+    "topics": [
+      "Markdown",
+      "Import"
+    ],
+    "body": "# Imported public note\n\nThis note is generated from a safe demo JSON source. It links back to [[Markdown]].",
+    "links": [
+      "Markdown"
+    ],
+    "backlinks": [],
+    "bodyHtml": "<h1>Imported public note</h1>\n<p>This note is generated from a safe demo JSON source. It links back to <a href=\"/topics/markdown/\">Markdown</a>.</p>"
+  },
+  {
+    "title": "Markdown",
+    "slug": "markdown",
+    "path": "Topics/Markdown.md",
+    "kind": "topic",
+    "topics": [
+      "Markdown"
+    ],
+    "body": "# Markdown\n\nMarkdown is the portable source format for the editorial layer.",
+    "links": [],
+    "backlinks": [
+      "imported-public-note",
+      "obsidian-compatible-publishing"
+    ],
+    "bodyHtml": "<h1>Markdown</h1>\n<p>Markdown is the portable source format for the editorial layer.</p>"
+  },
+  {
+    "title": "Obsidian compatible publishing",
+    "slug": "obsidian-compatible-publishing",
+    "path": "Notes/Obsidian compatible publishing.md",
+    "kind": "note",
+    "topics": [
+      "Markdown",
+      "Privacy"
+    ],
+    "body": "# Obsidian compatible publishing\n\nA portable editorial vault should work in Obsidian, other Markdown editors and automated pipelines.\n\n- Keep private notes out of public exports.\n- Use explicit frontmatter such as `publish: true`.\n- Link concepts with wikilinks like [[Markdown]].",
+    "links": [
+      "Markdown"
+    ],
+    "backlinks": [
+      "home"
+    ],
+    "bodyHtml": "<h1>Obsidian compatible publishing</h1>\n<p>A portable editorial vault should work in Obsidian, other Markdown editors and automated pipelines.</p>\n<ul><li>Keep private notes out of public exports.</li><li>Use explicit frontmatter such as `publish: true`.</li><li>Link concepts with wikilinks like <a href=\"/topics/markdown/\">Markdown</a>.</li></ul>"
+  },
+  {
+    "title": "Privacy",
+    "slug": "privacy",
+    "path": "Topics/Privacy.md",
+    "kind": "topic",
+    "topics": [
+      "Privacy"
+    ],
+    "body": "# Privacy\n\nPrivacy-by-design means publishing from allowlisted content and failing closed during audits.",
+    "links": [],
+    "backlinks": [],
+    "bodyHtml": "<h1>Privacy</h1>\n<p>Privacy-by-design means publishing from allowlisted content and failing closed during audits.</p>"
+  },
+  {
+    "title": "Rock from Space Demo Vault",
+    "slug": "home",
+    "path": "index.md",
+    "kind": "index",
+    "topics": [
+      "Markdown",
+      "Privacy"
+    ],
+    "body": "# Rock from Space Demo Vault\n\nThis disposable vault shows how public Markdown can become a static Astro site.\n\nStart with [[Obsidian compatible publishing]] and [[Astro static rendering]].",
+    "links": [
+      "Obsidian compatible publishing",
+      "Astro static rendering"
+    ],
+    "backlinks": [],
+    "bodyHtml": "<h1>Rock from Space Demo Vault</h1>\n<p>This disposable vault shows how public Markdown can become a static Astro site.</p>\n<p>Start with <a href=\"/notes/obsidian-compatible-publishing/\">Obsidian compatible publishing</a> and <a href=\"/notes/astro-static-rendering/\">Astro static rendering</a>.</p>"
+  },
+  {
+    "title": "Static Sites",
+    "slug": "static-sites",
+    "path": "Topics/Static Sites.md",
+    "kind": "topic",
+    "topics": [
+      "Static Sites"
+    ],
+    "body": "# Static Sites\n\nStatic outputs are easy to deploy to cloud hosting and CDNs.",
+    "links": [],
+    "backlinks": [],
+    "bodyHtml": "<h1>Static Sites</h1>\n<p>Static outputs are easy to deploy to cloud hosting and CDNs.</p>"
+  }
+]

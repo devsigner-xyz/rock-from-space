@@ -1,0 +1,22 @@
+[
+  {
+    "from": "home",
+    "to": "obsidian-compatible-publishing",
+    "label": "Obsidian compatible publishing"
+  },
+  {
+    "from": "home",
+    "to": "astro-static-rendering",
+    "label": "Astro static rendering"
+  },
+  {
+    "from": "imported-public-note",
+    "to": "markdown",
+    "label": "Markdown"
+  },
+  {
+    "from": "obsidian-compatible-publishing",
+    "to": "markdown",
+    "label": "Markdown"
+  }
+]

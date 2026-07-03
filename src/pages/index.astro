@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import pagesRaw from '../generated/pages.json';
+import topicsRaw from '../generated/topics.json';
+import metaRaw from '../generated/meta.json';
+
+interface PageIndexItem { title: string; slug: string; kind: 'note' | 'topic' | 'index'; topics: string[]; }
+interface TopicIndexItem { title: string; slug: string; noteCount: number; }
+interface Meta { noteCount: number; topicCount: number; pageCount: number; site: { title: string; description: string; }; }
+
+const pages = pagesRaw as PageIndexItem[];
+const topics = topicsRaw as TopicIndexItem[];
+const meta = metaRaw as Meta;
+const featuredNotes = pages.filter((page) => page.kind === 'note').slice(0, 3);
+---
+<BaseLayout title={meta.site.title} description={meta.site.description}>
+  <section class="hero">
+    <p class="kicker">Markdown vault → Astro static site</p>
+    <h1>{meta.site.title}</h1>
+    <p>{meta.site.description}</p>
+    <p>Demo content is exported from an Obsidian-compatible vault, indexed, audited and rendered as static pages.</p>
+  </section>
+
+  <section class="grid" aria-label="Site summary">
+    <a class="card" href="/notes/">
+      <strong>{meta.noteCount} notes</strong>
+      <p>Public notes exported from the demo vault.</p>
+    </a>
+    <a class="card" href="/topics/">
+      <strong>{meta.topicCount} topics</strong>
+      <p>Generated topic index with related notes.</p>
+    </a>
+    <div class="card">
+      <strong>{meta.pageCount} pages</strong>
+      <p>Indexed Markdown pages available to Astro.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Featured notes</h2>
+    <div class="grid">
+      {featuredNotes.map((note) => (
+        <a class="card" href={`/notes/${note.slug}/`}>
+          <strong>{note.title}</strong>
+          <p>{note.topics.join(', ') || 'No topics'}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2>Topics</h2>
+    <ul class="badges">
+      {topics.map((topic) => <li><a class="badge" href={`/topics/${topic.slug}/`}>{topic.title} ({topic.noteCount})</a></li>)}
+    </ul>
+  </section>
+</BaseLayout>

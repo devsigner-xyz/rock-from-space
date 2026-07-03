@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import topicsRaw from '../../generated/topics.json';
+
+interface PublicTopic { title: string; slug: string; noteCount: number; description: string; }
+const topics = topicsRaw as PublicTopic[];
+---
+<BaseLayout title="Topics — Rock from Space Demo">
+  <section class="hero">
+    <p class="kicker">Generated index</p>
+    <h1>Topics</h1>
+    <p>Topics are generated from note frontmatter and optional topic pages.</p>
+  </section>
+
+  <div class="grid">
+    {topics.map((topic) => (
+      <a class="card" href={`/topics/${topic.slug}/`}>
+        <strong>{topic.title}</strong>
+        <p>{topic.noteCount} related note{topic.noteCount === 1 ? '' : 's'}</p>
+      </a>
+    ))}
+  </div>
+</BaseLayout>

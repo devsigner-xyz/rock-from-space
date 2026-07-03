@@ -1,0 +1,33 @@
+{
+  "name": "rock-from-space",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0",
+    "reset:demo": "tsx scripts/reset-demo-vault.ts",
+    "import:demo": "tsx scripts/import-to-vault.ts --source examples/import/demo-notes.json --target examples/demo-vault --apply",
+    "content:export": "tsx scripts/export-from-vault.ts",
+    "content:index": "tsx scripts/build-content-indexes.ts",
+    "audit:content": "tsx scripts/audit-public-content.ts",
+    "build": "pnpm run content:export && pnpm run content:index && pnpm run audit:content && astro build",
+    "check": "astro check && tsc --noEmit",
+    "deploy:check": "pnpm run content:export && pnpm run content:index && pnpm run audit:content && pnpm run build && pnpm run check",
+    "preview": "astro preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@astrojs/check": "latest",
+    "astro": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "tsx": "latest",
+    "typescript": "latest",
+    "vite": "^8.1.3"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

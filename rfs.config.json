@@ -1,0 +1,49 @@
+{
+  "site": {
+    "title": "Rock from Space Demo",
+    "description": "An Obsidian-compatible Markdown vault rendered with Astro.",
+    "language": "en",
+    "url": "https://example.com",
+    "base": "/"
+  },
+  "vault": {
+    "path": "examples/demo-vault",
+    "mode": "managed",
+    "allow": ["index.md", "Notes/**", "Topics/**"],
+    "ignore": [".obsidian/**", "**/Private/**"]
+  },
+  "import": {
+    "sources": [
+      {
+        "name": "demo-json",
+        "type": "json",
+        "input": "examples/import/demo-notes.json",
+        "output": "Notes"
+      }
+    ]
+  },
+  "publish": {
+    "requireField": "publish",
+    "requireValue": true,
+    "output": "content"
+  },
+  "routes": {
+    "notes": "/notes",
+    "topics": "/topics"
+  },
+  "privacy": {
+    "forbiddenPatterns": ["/home/", "password", "secret", "api_key", "token"],
+    "blockedFrontmatterFields": ["private", "secret", "internal"],
+    "allowedEmbedDomains": []
+  },
+  "deploy": {
+    "target": "static",
+    "output": "dist",
+    "predeploy": ["content:export", "content:index", "audit:content", "build"]
+  },
+  "agent": {
+    "skillsPath": "agent/skills",
+    "promptsPath": "agent/prompts",
+    "checklistsPath": "agent/checklists"
+  }
+}

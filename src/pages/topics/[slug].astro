@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import pagesRaw from '../../generated/pages.json';
+import topicsRaw from '../../generated/topics.json';
+
+interface PublicPage { title: string; slug: string; kind: 'note' | 'topic' | 'index'; topics: string[]; }
+interface PublicTopic { title: string; slug: string; description: string; bodyHtml: string; noteSlugs: string[]; noteCount: number; }
+const pages = pagesRaw as PublicPage[];
+export function getStaticPaths() {
+  return (topicsRaw as PublicTopic[]).map((topic) => ({ params: { slug: topic.slug }, props: { topic } }));
+}
+
+const { topic } = Astro.props as { topic: PublicTopic };
+const relatedNotes = topic.noteSlugs
+  .map((slug) => pages.find((page) => page.kind === 'note' && page.slug === slug))
+  .filter((page): page is PublicPage => Boolean(page));
+---
+<BaseLayout title={`${topic.title} — Rock from Space Demo`}>
+  <article class="article">
+    <p class="kicker">Topic</p>
+    <h1>{topic.title}</h1>
+    {topic.bodyHtml ? <div set:html={topic.bodyHtml} /> : <p>{topic.description || 'Generated topic from public note metadata.'}</p>}
+
+    <section>
+      <h2>Related notes</h2>
+      {relatedNotes.length > 0 ? (
+        <ul>
+          {relatedNotes.map((note) => <li><a href={`/notes/${note.slug}/`}>{note.title}</a></li>)}
+        </ul>
+      ) : (
+        <p>No related notes yet.</p>
+      )}
+    </section>
+  </article>
+</BaseLayout>

@@ -1,0 +1,7 @@
+[
+  {
+    "title": "Imported public note",
+    "topics": ["Markdown", "Import"],
+    "body": "# Imported public note\n\nThis note is generated from a safe demo JSON source. It links back to [[Markdown]]."
+  }
+]

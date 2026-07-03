@@ -1,0 +1,48 @@
+[
+  {
+    "title": "Import",
+    "slug": "import",
+    "path": null,
+    "description": "",
+    "bodyHtml": "",
+    "noteSlugs": [
+      "imported-public-note"
+    ],
+    "noteCount": 1
+  },
+  {
+    "title": "Markdown",
+    "slug": "markdown",
+    "path": "Topics/Markdown.md",
+    "description": "Markdown is the portable source format for the editorial layer.",
+    "bodyHtml": "<h1>Markdown</h1>\n<p>Markdown is the portable source format for the editorial layer.</p>",
+    "noteSlugs": [
+      "astro-static-rendering",
+      "imported-public-note",
+      "obsidian-compatible-publishing"
+    ],
+    "noteCount": 3
+  },
+  {
+    "title": "Privacy",
+    "slug": "privacy",
+    "path": "Topics/Privacy.md",
+    "description": "Privacy-by-design means publishing from allowlisted content and failing closed during audits.",
+    "bodyHtml": "<h1>Privacy</h1>\n<p>Privacy-by-design means publishing from allowlisted content and failing closed during audits.</p>",
+    "noteSlugs": [
+      "obsidian-compatible-publishing"
+    ],
+    "noteCount": 1
+  },
+  {
+    "title": "Static Sites",
+    "slug": "static-sites",
+    "path": "Topics/Static Sites.md",
+    "description": "Static outputs are easy to deploy to cloud hosting and CDNs.",
+    "bodyHtml": "<h1>Static Sites</h1>\n<p>Static outputs are easy to deploy to cloud hosting and CDNs.</p>",
+    "noteSlugs": [
+      "astro-static-rendering"
+    ],
+    "noteCount": 1
+  }
+]
