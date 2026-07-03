@@ -26,6 +26,9 @@ Some hardening is already implemented: Vitest, integration fixtures, determinist
 - GitHub Actions CI running `pnpm install --frozen-lockfile` and `pnpm run deploy:check`.
 - Initial public project process docs: `CONTRIBUTING.md`, `SECURITY.md` and `agent/checklists/release.md`.
 - Initial local structured reports for export/audit via `content:export -- --report` and `audit:content -- --report`.
+- MIT license via `LICENSE` and `package.json`.
+- Audit coverage for raw HTML, iframe/embed/object allowlist domains, backend-only environment variable names and malformed frontmatter.
+- Richer audit reports with structured findings and summary counts.
 
 ## Remaining tasks
 
@@ -36,15 +39,13 @@ Added:
 ```text
 CONTRIBUTING.md
 SECURITY.md
-```
-
-Still pending:
-
-```text
 LICENSE
 ```
 
-Decide license before release. If undecided, keep a TODO in the release checklist rather than guessing.
+LICENSE
+```
+
+License decision: MIT.
 
 ### 2. Release checklist
 
@@ -63,11 +64,11 @@ Minimum checks covered:
 - docs current;
 - demo screenshots updated if used;
 - version/tag decision made;
-- license decision remains explicit and unresolved.
+- license decision is explicit and documented.
 
 ### 3. Stronger audit coverage
 
-Add tests and implementation for:
+Implemented:
 
 - HTML/iframe/embed detection;
 - allowed embed domains;
@@ -75,12 +76,14 @@ Add tests and implementation for:
 - blocked backend-only env names;
 - malformed frontmatter.
 
+Remaining hardening can add more fixture classes and provider-specific smoke examples, but the first Plan 06 audit block is complete.
+
 ### 4. Documentation polish
 
-- README quickstart with current commands.
-- Deployment guide linked from README.
-- Clear explanation of local-first editorial workflow vs cloud-hosted output.
-- Agentic operation section linked to `agent/` package.
+- [x] README quickstart with current commands.
+- [x] Deployment guide linked from README.
+- [x] Clear explanation of local-first editorial workflow vs cloud-hosted output.
+- [x] Agentic operation section linked to `agent/` package.
 
 ### 5. Demo evidence
 

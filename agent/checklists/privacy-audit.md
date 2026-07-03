@@ -13,9 +13,12 @@ Expected result:
 
 - [ ] `reports/export-report.json` contains only expected exported public files.
 - [ ] `reports/audit-report.json` reports no blocking findings.
+- [ ] Audit report includes structured `findings` and summary counts when generated.
 - [ ] Publishable items have valid public frontmatter.
 - [ ] Drafts and ignored folders are not exported.
 - [ ] Blocked/private frontmatter fields fail closed.
+- [ ] Raw HTML is absent, and iframe/embed/object tags use only allowlisted domains.
+- [ ] Backend-only environment variable names are absent from public content and generated indexes.
 
 ## Repository privacy scan
 

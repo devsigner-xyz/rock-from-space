@@ -123,7 +123,9 @@ Before declaring work complete, verify that public outputs do not contain:
 - accidental personal/project-specific copy;
 - backend-only environment variable names in frontend bundles;
 - generated indexes that point to private source files;
-- malformed public frontmatter: `title` must be a non-empty string, `publish` must be boolean, and optional `topics` must be an array of non-empty strings.
+- malformed public frontmatter: `title` must be a non-empty string, `publish` must be boolean, and optional `topics` must be an array of non-empty strings;
+- raw HTML or embed tags unless explicitly allowlisted by `privacy.allowedEmbedDomains`;
+- backend-only environment variable names.
 
 Frontmatter contract:
 

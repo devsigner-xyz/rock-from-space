@@ -109,6 +109,23 @@ pnpm run preview
 pnpm run preview:prod
 ```
 
+## Quickstart
+
+From a fresh clone:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run reset:demo
+pnpm run content:export -- --report
+pnpm run audit:content -- --report
+pnpm run deploy:check
+pnpm run preview:prod
+```
+
+Then open `http://127.0.0.1:4321` and smoke `/`, `/notes/`, one generated note route, `/topics/` and one generated topic route.
+
+Deployment guidance lives in `docs/deployment/static-hosting.md`; production smoke checks live in `docs/deployment/smoke-checklist.md`.
+
 ## Collections, taxonomies and frontmatter
 
 `rfs.config.json` includes explicit `collections` and `taxonomies` contracts while preserving the existing `/notes/` and `/topics/` routes.
@@ -143,6 +160,10 @@ pnpm run deploy:check
 
 `deploy:check` exports public content, generates indexes, audits the public surface, builds Astro and runs typecheck/tests. For agent/operator workflows, `content:export` and `audit:content` also support `-- --report` to write ignored local JSON reports under `reports/`.
 
+## License
+
+Rock from Space is released under the MIT License. See `LICENSE`.
+
 ## Security baseline
 
 The public build must fail before deployment if it contains obvious private material:
@@ -152,7 +173,9 @@ The public build must fail before deployment if it contains obvious private mate
 - unpublished drafts;
 - private frontmatter fields;
 - references to ignored folders;
-- generated data that points back to private source paths.
+- generated data that points back to private source paths;
+- raw HTML or embed tags that are not explicitly allowlisted;
+- backend-only environment variable names.
 
 Frontend code must not receive backend-only secrets. If public environment variables are needed later, they should be clearly named and documented.
 

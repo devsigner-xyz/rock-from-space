@@ -233,6 +233,7 @@ describe('content pipeline integration', () => {
       cwd: fixturesRoot,
       forbiddenPatterns: ['/home/', 'password', 'secret', 'api_key', 'token'],
       blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      allowedEmbedDomains: [],
       publish,
       failOnBrokenWikilinks: true
     });
@@ -276,6 +277,7 @@ describe('content pipeline integration', () => {
       cwd: fixturesRoot,
       forbiddenPatterns: ['/home/', 'password', 'secret', 'api_key', 'token'],
       blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      allowedEmbedDomains: [],
       publish,
       failOnBrokenWikilinks: false
     });
@@ -289,6 +291,7 @@ describe('content pipeline integration', () => {
       cwd: fixturesRoot,
       forbiddenPatterns: ['/home/', 'password', 'secret', 'api_key', 'token'],
       blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      allowedEmbedDomains: [],
       publish,
       failOnBrokenWikilinks: true
     });
@@ -313,6 +316,7 @@ describe('content pipeline integration', () => {
       cwd: path.dirname(contentRoot),
       forbiddenPatterns: ['/home/', 'password', 'secret', keyName, 'token'],
       blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      allowedEmbedDomains: [],
       publish,
       failOnBrokenWikilinks: true
     });
@@ -322,5 +326,45 @@ describe('content pipeline integration', () => {
       `content/Notes/Leak.md: forbidden pattern '${keyName}'`,
       'content/Notes/Leak.md: secret-looking value'
     ]);
+  });
+
+  it('audits raw HTML, embeds, backend env names and malformed frontmatter', async () => {
+    const contentRoot = path.join(await tempDir(), 'content');
+    const notesRoot = path.join(contentRoot, 'Notes');
+    const backendEnv = ['SERVICE', 'ROLE'].join('_');
+    await mkdir(notesRoot, { recursive: true });
+    await writeFile(
+      path.join(notesRoot, 'Bad.md'),
+      `---\ntitle: "Bad"\npublish: true\ntopics: []\n---\n\n# Bad\n\n<p>raw html</p>\n\n<iframe src="https://evil.example/embed"></iframe>\n\n${backendEnv}=example\n`,
+      'utf8'
+    );
+    await writeFile(
+      path.join(notesRoot, 'Allowed.md'),
+      `---\ntitle: "Allowed"\npublish: true\ntopics: []\n---\n\n# Allowed\n\n<iframe src="https://videos.example.com/embed/demo"></iframe>\n`,
+      'utf8'
+    );
+    await writeFile(path.join(notesRoot, 'Malformed.md'), '---\ntitle: [\n---\n\n# Broken\n', 'utf8');
+
+    const result = await auditPublicContent({
+      scanRoots: [contentRoot],
+      contentRoot,
+      cwd: path.dirname(contentRoot),
+      forbiddenPatterns: ['/home/', 'password', 'secret', 'api_key', 'token'],
+      blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      allowedEmbedDomains: ['example.com'],
+      publish,
+      failOnBrokenWikilinks: true
+    });
+
+    expect(result.warnings).toEqual([]);
+    expect(result.failures).toEqual(
+      expect.arrayContaining([
+        `content/Notes/Bad.md: backend-only environment name '${backendEnv}'`,
+        'content/Notes/Bad.md: raw HTML tag <p> is not allowed',
+        'content/Notes/Bad.md: raw <iframe> embed domain is not allowlisted'
+      ])
+    );
+    expect(result.failures.some((failure) => failure.startsWith('content/Notes/Malformed.md: malformed frontmatter:'))).toBe(true);
+    expect(result.findings.some((finding) => finding.path === 'content/Notes/Allowed.md')).toBe(false);
   });
 });

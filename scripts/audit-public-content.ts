@@ -21,6 +21,7 @@ const result = await auditPublicContent({
   cwd: process.cwd(),
   forbiddenPatterns: config.privacy.forbiddenPatterns,
   blockedFrontmatterFields: config.privacy.blockedFrontmatterFields,
+  allowedEmbedDomains: config.privacy.allowedEmbedDomains,
   publish: config.publish,
   failOnBrokenWikilinks,
   collections: config.collections,
@@ -33,6 +34,15 @@ if (reportPath) {
     generatedAt: new Date().toISOString(),
     scanRoots,
     failOnBrokenWikilinks,
+    summary: {
+      scannedFileCount: result.scanned.length,
+      failureCount: result.failures.length,
+      warningCount: result.warnings.length,
+      findingsByCategory: result.findings.reduce<Record<string, number>>((counts, finding) => {
+        counts[finding.category] = (counts[finding.category] ?? 0) + 1;
+        return counts;
+      }, {})
+    },
     ...result
   });
   console.log(`Wrote audit report to ${reportPath}`);

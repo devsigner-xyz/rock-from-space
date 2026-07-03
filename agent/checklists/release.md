@@ -6,7 +6,7 @@ Use this checklist before tagging, publishing or deploying Rock from Space. It i
 
 - [ ] Release purpose is clear: patch, minor feature, documentation update or first public release.
 - [ ] Version/tag decision is made.
-- [ ] License decision is made before any public release. Do not invent a license.
+- [ ] License is present and matches the release notes. Current repository license: MIT.
 - [ ] Known non-blocking work is captured in `docs/plans/`.
 
 ## 2. Fresh clone verification
@@ -80,4 +80,4 @@ Expected result:
 - [ ] GitHub Actions is green for `main` or the release branch.
 - [ ] The release commit is pushed.
 - [ ] The tag is created only after the local release gate and CI pass.
-- [ ] Release notes mention known limitations and pending license status if still unreleased/private.
+- [ ] Release notes mention known limitations and any release blockers.

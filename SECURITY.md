@@ -33,7 +33,9 @@ Rock from Space should preserve these boundaries:
 - Generated indexes must not point back to private source files.
 - Public builds must not contain local absolute paths or credential-like values.
 - Imported Markdown/frontmatter should be treated as untrusted input.
-- Raw HTML or embeds should remain blocked or allowlisted unless audited.
+- Raw HTML is blocked by audit unless explicitly implemented and reviewed.
+- Raw iframe/embed/object tags must point to an allowlisted domain from `rfs.config.json`.
+- Backend-only environment variable names must not appear in public content or generated indexes.
 
 ## Maintainer verification before release
 

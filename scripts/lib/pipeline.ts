@@ -266,22 +266,34 @@ export interface AuditPublicContentOptions {
   cwd: string;
   forbiddenPatterns: string[];
   blockedFrontmatterFields: string[];
+  allowedEmbedDomains: string[];
   publish: RfsConfig['publish'];
   failOnBrokenWikilinks: boolean;
   collections?: CollectionConfig[];
   taxonomies?: TaxonomyConfig[];
 }
 
+export interface AuditFinding {
+  severity: 'failure' | 'warning';
+  category: 'privacy' | 'secret' | 'frontmatter' | 'wikilink' | 'html' | 'embed';
+  path: string;
+  message: string;
+  evidence?: string;
+}
+
 export interface AuditPublicContentResult {
   scanned: string[];
   failures: string[];
   warnings: string[];
+  findings: AuditFinding[];
 }
 
 export async function auditPublicContent(options: AuditPublicContentOptions): Promise<AuditPublicContentResult> {
   const scanned: string[] = [];
-  const failures: string[] = [];
-  const warnings: string[] = [];
+  const findings: AuditFinding[] = [];
+  const addFinding = (finding: AuditFinding): void => {
+    findings.push(finding);
+  };
 
   for (const root of options.scanRoots) {
     const files = await collectTextFiles(root);
@@ -291,26 +303,52 @@ export async function auditPublicContent(options: AuditPublicContentOptions): Pr
       const text = await readFile(file, 'utf8');
       for (const pattern of options.forbiddenPatterns) {
         if (text.toLowerCase().includes(pattern.toLowerCase())) {
-          failures.push(`${relative}: forbidden pattern '${pattern}'`);
+          addFinding({ severity: 'failure', category: 'privacy', path: relative, message: `forbidden pattern '${pattern}'`, evidence: pattern });
+        }
+      }
+      for (const name of backendOnlyEnvNames()) {
+        if (text.includes(name)) {
+          addFinding({ severity: 'failure', category: 'secret', path: relative, message: `backend-only environment name '${name}'`, evidence: name });
         }
       }
       if (/sk-[a-z0-9_-]{12,}/i.test(text) || /[a-z0-9_]*api[_-]?key\s*[:=]\s*['"][^'"]+/i.test(text)) {
-        failures.push(`${relative}: secret-looking value`);
+        addFinding({ severity: 'failure', category: 'secret', path: relative, message: 'secret-looking value' });
       }
       if (file.endsWith('.md')) {
-        const parsed = parseMarkdown(text);
+        let parsed: ReturnType<typeof parseMarkdown>;
+        try {
+          parsed = parseMarkdown(text);
+        } catch (error) {
+          addFinding({
+            severity: 'failure',
+            category: 'frontmatter',
+            path: relative,
+            message: `malformed frontmatter: ${error instanceof Error ? error.message : String(error)}`
+          });
+          continue;
+        }
         if (parsed.frontmatter[options.publish.requireField] !== options.publish.requireValue) {
-          failures.push(`${relative}: public export without ${options.publish.requireField}: ${String(options.publish.requireValue)}`);
+          addFinding({
+            severity: 'failure',
+            category: 'frontmatter',
+            path: relative,
+            message: `public export without ${options.publish.requireField}: ${String(options.publish.requireValue)}`
+          });
         }
         for (const blocked of options.blockedFrontmatterFields) {
           if (Object.hasOwn(parsed.frontmatter, blocked)) {
-            failures.push(`${relative}: blocked frontmatter field '${blocked}'`);
+            addFinding({ severity: 'failure', category: 'frontmatter', path: relative, message: `blocked frontmatter field '${blocked}'`, evidence: blocked });
           }
         }
         const contentRelative = toPosix(path.relative(options.contentRoot, file));
         const contract = publicContractForPath(contentRelative, options.collections ?? [], options.taxonomies ?? []);
         const contractFailures = normalizePublicFrontmatter(parsed.frontmatter, relative, contract.required, contract.optional).failures;
-        failures.push(...contractFailures);
+        for (const failure of contractFailures) {
+          addFinding({ severity: 'failure', category: 'frontmatter', path: relative, message: stripPathPrefix(failure, relative) });
+        }
+        for (const finding of detectRawHtmlAndEmbeds(parsed.body, relative, options.allowedEmbedDomains)) {
+          addFinding(finding);
+        }
       }
     }
   }
@@ -318,23 +356,114 @@ export async function auditPublicContent(options: AuditPublicContentOptions): Pr
   const markdownFiles = await listMarkdownFiles(options.contentRoot);
   const knownSlugs = new Set<string>();
   for (const file of markdownFiles) {
-    const parsed = parseMarkdown(await readFile(file, 'utf8'));
+    const parsed = parseMarkdownSafely(await readFile(file, 'utf8'));
+    if (!parsed) continue;
     const fallback = path.basename(file, '.md');
     const title = typeof parsed.frontmatter['title'] === 'string' ? parsed.frontmatter['title'] : fallback;
     knownSlugs.add(slugify(title));
   }
   for (const file of markdownFiles) {
-    const parsed = parseMarkdown(await readFile(file, 'utf8'));
+    const parsed = parseMarkdownSafely(await readFile(file, 'utf8'));
+    if (!parsed) continue;
     for (const link of extractWikilinks(parsed.body)) {
       if (!knownSlugs.has(slugify(link))) {
-        const message = `${toPosix(path.relative(options.contentRoot, file))}: unresolved wikilink [[${link}]]`;
-        if (options.failOnBrokenWikilinks) failures.push(message);
-        else warnings.push(message);
+        addFinding({
+          severity: options.failOnBrokenWikilinks ? 'failure' : 'warning',
+          category: 'wikilink',
+          path: toPosix(path.relative(options.contentRoot, file)),
+          message: `unresolved wikilink [[${link}]]`,
+          evidence: link
+        });
       }
     }
   }
 
-  return { scanned: Array.from(new Set(scanned)).sort((a, b) => a.localeCompare(b)), failures, warnings };
+  const failures = findings.filter((finding) => finding.severity === 'failure').map(formatFinding);
+  const warnings = findings.filter((finding) => finding.severity === 'warning').map(formatFinding);
+  return { scanned: Array.from(new Set(scanned)).sort((a, b) => a.localeCompare(b)), failures, warnings, findings };
+}
+
+function parseMarkdownSafely(source: string): ReturnType<typeof parseMarkdown> | null {
+  try {
+    return parseMarkdown(source);
+  } catch {
+    return null;
+  }
+}
+
+function stripPathPrefix(message: string, relative: string): string {
+  return message.startsWith(`${relative}: `) ? message.slice(relative.length + 2) : message;
+}
+
+function formatFinding(finding: AuditFinding): string {
+  return `${finding.path}: ${finding.message}`;
+}
+
+function backendOnlyEnvNames(): string[] {
+  return [
+    ['SUPABASE', 'SERVICE', 'ROLE'].join('_'),
+    ['SERVICE', 'ROLE'].join('_'),
+    ['DATABASE', 'URL'].join('_'),
+    ['POSTGRES', 'URL'].join('_'),
+    ['RESEND', 'API', 'KEY'].join('_')
+  ];
+}
+
+function detectRawHtmlAndEmbeds(markdownBody: string, relative: string, allowedEmbedDomains: string[]): AuditFinding[] {
+  const findings: AuditFinding[] = [];
+  const allowed = allowedEmbedDomains.map(normalizeAllowedDomain).filter((domain): domain is string => Boolean(domain));
+  const rawTagPattern = /<(\/)?([a-z][a-z0-9-]*)(\s[^>]*)?>/gi;
+  for (const match of markdownBody.matchAll(rawTagPattern)) {
+    if (match[1]) continue;
+    const tag = match[2]?.toLowerCase();
+    const attributes = match[3] ?? '';
+    if (!tag) continue;
+
+    if (['iframe', 'embed', 'object'].includes(tag)) {
+      const src = extractAttribute(attributes, 'src') ?? extractAttribute(attributes, 'data');
+      if (!src) {
+        findings.push({ severity: 'failure', category: 'embed', path: relative, message: `raw <${tag}> embed without src/data` });
+        continue;
+      }
+      const hostname = hostnameForUrl(src);
+      if (!hostname || !isAllowedEmbedHost(hostname, allowed)) {
+        findings.push({ severity: 'failure', category: 'embed', path: relative, message: `raw <${tag}> embed domain is not allowlisted`, evidence: hostname ?? src });
+      }
+      continue;
+    }
+
+    if (tag === 'script') {
+      findings.push({ severity: 'failure', category: 'html', path: relative, message: 'raw <script> tag is not allowed' });
+      continue;
+    }
+
+    findings.push({ severity: 'failure', category: 'html', path: relative, message: `raw HTML tag <${tag}> is not allowed` });
+  }
+  return findings;
+}
+
+function extractAttribute(attributes: string, name: string): string | null {
+  const pattern = new RegExp(`${name}\\s*=\\s*(["'])(.*?)\\1`, 'i');
+  return pattern.exec(attributes)?.[2] ?? null;
+}
+
+function hostnameForUrl(value: string): string | null {
+  try {
+    return new URL(value).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function normalizeAllowedDomain(value: string): string | null {
+  if (!value.trim()) return null;
+  const trimmed = value.trim().toLowerCase();
+  if (!trimmed.includes('://')) return trimmed;
+  return hostnameForUrl(trimmed);
+}
+
+function isAllowedEmbedHost(hostname: string, allowedDomains: string[]): boolean {
+  return allowedDomains.some((allowed) => hostname === allowed || hostname.endsWith(`.${allowed}`));
 }
 
 async function collectTextFiles(root: string): Promise<string[]> {
