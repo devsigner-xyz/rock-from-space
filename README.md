@@ -105,6 +105,17 @@ pnpm run deploy:check
 pnpm run preview
 ```
 
+## CI
+
+GitHub Actions runs the production safety gate on pushes and pull requests to `main`:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run deploy:check
+```
+
+`deploy:check` exports public content, generates indexes, audits the public surface, builds Astro and runs typecheck/tests.
+
 ## Security baseline
 
 The public build must fail before deployment if it contains obvious private material:

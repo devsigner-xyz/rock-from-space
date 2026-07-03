@@ -130,6 +130,17 @@ Security defaults:
 - Use allowlists rather than blocklists for public export.
 - Fail closed when config is missing or ambiguous.
 
+## CI rules
+
+GitHub Actions runs `.github/workflows/ci.yml` on pushes and pull requests to `main` with:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run deploy:check
+```
+
+Keep `deploy:check` as the canonical CI gate for production readiness: public export, index generation, content audit, Astro build, typecheck and tests.
+
 ## Deployment rules
 
 Production deployment must be preceded by:
