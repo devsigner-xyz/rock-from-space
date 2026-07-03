@@ -18,7 +18,7 @@ The repo should include reusable agent materials that humans can read and agents
 
 - `agent/skills/rock-from-space-operator/SKILL.md` complete enough for repo operation.
 - Generic prompts for common tasks.
-- Checklists for import/export/audit/deploy.
+- Checklists for export/audit/deploy.
 - Safe task examples.
 - Optional future MCP/control-surface design note.
 
@@ -26,7 +26,6 @@ The repo should include reusable agent materials that humans can read and agents
 
 ```text
 agent/skills/rock-from-space-operator/SKILL.md
-agent/prompts/import-content.md
 agent/prompts/review-public-output.md
 agent/prompts/add-collection.md
 agent/checklists/pre-deploy.md
@@ -44,7 +43,6 @@ The skill should include:
 - repo mission;
 - source boundaries;
 - command contract;
-- safe dry-run/import behaviour;
 - export/index/audit/build sequence;
 - privacy scan patterns;
 - commit/deploy rules.
@@ -53,7 +51,6 @@ The skill should include:
 
 Prompts should be short and task-specific:
 
-- import structured content into a vault;
 - review generated public output;
 - add a new collection;
 - troubleshoot failed audit;

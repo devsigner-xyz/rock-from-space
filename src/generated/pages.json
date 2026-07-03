@@ -16,22 +16,6 @@
     "bodyHtml": "<h1>Astro static rendering</h1>\n<p>Astro turns generated content indexes into deployable static HTML.</p>\n<p>The public site reads from exported content, never directly from a private vault.</p>"
   },
   {
-    "title": "Imported public note",
-    "slug": "imported-public-note",
-    "path": "Notes/Imported public note.md",
-    "kind": "note",
-    "topics": [
-      "Markdown",
-      "Import"
-    ],
-    "body": "# Imported public note\n\nThis note is generated from a safe demo JSON source. It links back to [[Markdown]].",
-    "links": [
-      "Markdown"
-    ],
-    "backlinks": [],
-    "bodyHtml": "<h1>Imported public note</h1>\n<p>This note is generated from a safe demo JSON source. It links back to <a href=\"/topics/markdown/\">Markdown</a>.</p>"
-  },
-  {
     "title": "Markdown",
     "slug": "markdown",
     "path": "Topics/Markdown.md",
@@ -42,7 +26,6 @@
     "body": "# Markdown\n\nMarkdown is the portable source format for the editorial layer.",
     "links": [],
     "backlinks": [
-      "imported-public-note",
       "obsidian-compatible-publishing"
     ],
     "bodyHtml": "<h1>Markdown</h1>\n<p>Markdown is the portable source format for the editorial layer.</p>"

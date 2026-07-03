@@ -18,14 +18,6 @@ const ConfigSchema = z.object({
     allow: z.array(z.string()),
     ignore: z.array(z.string())
   }),
-  import: z.object({
-    sources: z.array(z.object({
-      name: z.string(),
-      type: z.string(),
-      input: z.string(),
-      output: z.string()
-    }))
-  }).optional(),
   publish: z.object({
     requireField: z.string(),
     requireValue: z.boolean(),

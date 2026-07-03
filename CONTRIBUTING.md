@@ -10,7 +10,7 @@ Rock from Space is an Obsidian-compatible Markdown editorial pipeline plus Astro
 - do not add personal vault paths, domain-specific taxonomies or private source material;
 - keep Astro reading from `content/` and `src/generated/`, not from a private vault;
 - treat `content/`, `src/generated/` and `dist/` as public surfaces;
-- make import/export/index/audit behavior deterministic and safe to rerun;
+- make export/index/audit behavior deterministic and safe to rerun;
 - prefer TypeScript for project tooling and app code.
 
 ## Local setup
@@ -18,7 +18,6 @@ Rock from Space is an Obsidian-compatible Markdown editorial pipeline plus Astro
 ```bash
 pnpm install
 pnpm run reset:demo
-pnpm run import:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content
@@ -36,7 +35,7 @@ pnpm run deploy:check
 
 1. Start from `main` and keep changes focused.
 2. Read `AGENTS.md` before touching architecture, pipeline behavior or generated files.
-3. Update tests when changing import/export/index/audit logic.
+3. Update tests when changing export/index/audit logic.
 4. Update docs when changing commands, public behavior, configuration, deployment assumptions or agent workflows.
 5. Before submitting, run the verification gate and check for whitespace issues:
 

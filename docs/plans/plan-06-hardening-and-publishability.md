@@ -8,7 +8,7 @@ Some hardening is already implemented: Vitest, integration fixtures, determinist
 
 ## Deliverables
 
-- Tests for import/export/index/audit.
+- Tests for export/index/audit.
 - Fixtures for happy paths and negative paths.
 - Expanded README or docs site.
 - Example screenshots or generated demo captures.
@@ -22,7 +22,6 @@ Some hardening is already implemented: Vitest, integration fixtures, determinist
 - Unit tests for content utilities.
 - Integration tests for export/index/audit.
 - Deterministic generated indexes without timestamps.
-- Dry-run import output.
 - Config/CLI option to fail on broken wikilinks.
 - GitHub Actions CI running `pnpm install --frozen-lockfile` and `pnpm run deploy:check`.
 - Initial public project process docs: `CONTRIBUTING.md`, `SECURITY.md` and `agent/checklists/release.md`.

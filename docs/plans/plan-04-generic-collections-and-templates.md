@@ -103,7 +103,6 @@ Run:
 ```bash
 pnpm run test
 pnpm run reset:demo
-pnpm run import:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content

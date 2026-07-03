@@ -9,17 +9,14 @@
   "vault": {
     "path": "examples/demo-vault",
     "mode": "managed",
-    "allow": ["index.md", "Notes/**", "Topics/**"],
-    "ignore": [".obsidian/**", "**/Private/**"]
-  },
-  "import": {
-    "sources": [
-      {
-        "name": "demo-json",
-        "type": "json",
-        "input": "examples/import/demo-notes.json",
-        "output": "Notes"
-      }
+    "allow": [
+      "index.md",
+      "Notes/**",
+      "Topics/**"
+    ],
+    "ignore": [
+      ".obsidian/**",
+      "**/Private/**"
     ]
   },
   "publish": {
@@ -32,14 +29,29 @@
     "topics": "/topics"
   },
   "privacy": {
-    "forbiddenPatterns": ["/home/", "password", "secret", "api_key", "token"],
-    "blockedFrontmatterFields": ["private", "secret", "internal"],
+    "forbiddenPatterns": [
+      "/home/",
+      "password",
+      "secret",
+      "api_key",
+      "token"
+    ],
+    "blockedFrontmatterFields": [
+      "private",
+      "secret",
+      "internal"
+    ],
     "allowedEmbedDomains": []
   },
   "deploy": {
     "target": "static",
     "output": "dist",
-    "predeploy": ["content:export", "content:index", "audit:content", "build"]
+    "predeploy": [
+      "content:export",
+      "content:index",
+      "audit:content",
+      "build"
+    ]
   },
   "agent": {
     "skillsPath": "agent/skills",

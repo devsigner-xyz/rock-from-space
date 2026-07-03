@@ -2,20 +2,19 @@
 
 ## Product definition
 
-Rock from Space is an open-source toolkit for building static Astro websites from an Obsidian-compatible editorial vault, with bidirectional content workflows and portable agent operations.
+Rock from Space is an open-source toolkit for building static Astro websites from an Obsidian-compatible editorial vault, with a one-way publishing workflow and portable agent operations.
 
 It should let a user:
 
 1. clone the repo;
-2. run the disposable demo vault;
-3. import content into the vault from simple external sources;
-4. edit/curate in Obsidian or any Markdown editor;
-5. export only public content into `content/`;
-6. generate Astro indexes;
-7. audit privacy and content integrity;
-8. build a static website;
-9. deploy the generated website to production cloud hosting;
-10. use included agent skills/prompts/checklists to operate and extend the system.
+2. run or edit the disposable demo vault;
+3. edit/curate in Obsidian or any Markdown editor;
+4. export only public content into `content/`;
+5. generate Astro indexes;
+6. audit privacy and content integrity;
+7. build a static website;
+8. deploy the generated website to production cloud hosting;
+9. use included agent skills/prompts/checklists to operate and extend the system.
 
 ## Non-goals
 
@@ -28,11 +27,6 @@ It should let a user:
 ## Architecture
 
 ```text
-External content sources
-  Markdown / JSON / YAML / CSV / APIs
-          ↓
-Import layer
-          ↓
 Obsidian-compatible editorial vault
           ↓
 Export + normalize + audit
@@ -65,7 +59,6 @@ rock-from-space/
 ├── examples/
 │   └── demo-vault/
 ├── scripts/
-│   ├── import-to-vault.ts
 │   ├── export-from-vault.ts
 │   ├── normalize-content.ts
 │   ├── build-content-indexes.ts
@@ -93,7 +86,6 @@ Minimum config areas:
 
 - `site`: title, description, language, production URL, base path.
 - `vault`: source path, mode, allow rules, ignore rules.
-- `import`: source definitions and templates.
 - `publish`: public field/tag requirements and output path.
 - `routes`: route prefixes for notes, topics and collections.
 - `privacy`: forbidden patterns, blocked frontmatter fields, allowed embed domains.
@@ -101,7 +93,7 @@ Minimum config areas:
 
 - TypeScript-first implementation baseline: Astro code, generated data contracts and project tooling should use TypeScript where JavaScript would otherwise be used.
 - SOLID-ish module boundaries: parsing, normalization, export, indexing and auditing should be separate modules with explicit inputs/outputs.
-- Schema validation for unknown config/import/frontmatter data.
+- Schema validation for unknown config/frontmatter data.
 
 ## Roadmap
 
@@ -124,12 +116,11 @@ Detailed plan: `docs/plans/plan-01-foundation-scaffold.md`.
 
 ### Plan 02 — Content pipeline vertical slice
 
-Goal: implement the first end-to-end pipeline from demo import to Astro build.
+Goal: implement the first end-to-end pipeline from demo vault to Astro build.
 
 Deliverables:
 
 - demo content reset;
-- JSON/Markdown import into vault;
 - vault export into `content/`;
 - generated JSON indexes;
 - privacy/content audit;
@@ -187,7 +178,7 @@ Goal: make the project stable enough for public release.
 
 Deliverables:
 
-- tests for import/export/index/audit;
+- tests for export/index/audit;
 - fixtures;
 - docs site or expanded README;
 - example screenshots;
@@ -199,7 +190,7 @@ Detailed plan: `docs/plans/plan-06-hardening-and-publishability.md`.
 
 ### Plan 07 — Local editorial control panel
 
-Goal: explore a local/file-backed operator UI for importing vault content, controlling publication state and running export/audit/build without turning Rock from Space into a hosted CMS.
+Goal: explore a local/file-backed operator UI for controlling publication state and running export/audit/build without turning Rock from Space into a hosted CMS.
 
 Deliverables:
 
@@ -218,7 +209,6 @@ A fresh clone should support this flow:
 ```bash
 pnpm install
 pnpm run reset:demo
-pnpm run import:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content
@@ -241,7 +231,6 @@ The built site must:
 
 - Should the first public positioning say “Obsidian-compatible” or “Markdown vault” first?
 - Should the default public gate be `publish: true`, `status: public`, or tag-based?
-- Should imports overwrite notes, create timestamped versions, or require explicit IDs?
 - Should wikilinks become clean routes by default or remain visible as text when unresolved?
 - Should the agentic package be documented as Hermes-first or agent-agnostic with Hermes-compatible skills?
 
@@ -249,6 +238,5 @@ Initial recommendation:
 
 - Use “Obsidian-compatible Markdown vault” as the public framing.
 - Require `publish: true` by default.
-- Make import dry-run by default when overwriting existing notes.
 - Fail audit on unresolved public wikilinks unless configured as warnings.
 - Keep agentic docs agent-agnostic, with Hermes skill compatibility as a concrete implementation format.

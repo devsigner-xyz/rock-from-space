@@ -1,16 +1,5 @@
 [
   {
-    "title": "Import",
-    "slug": "import",
-    "path": null,
-    "description": "",
-    "bodyHtml": "",
-    "noteSlugs": [
-      "imported-public-note"
-    ],
-    "noteCount": 1
-  },
-  {
     "title": "Markdown",
     "slug": "markdown",
     "path": "Topics/Markdown.md",
@@ -18,10 +7,9 @@
     "bodyHtml": "<h1>Markdown</h1>\n<p>Markdown is the portable source format for the editorial layer.</p>",
     "noteSlugs": [
       "astro-static-rendering",
-      "imported-public-note",
       "obsidian-compatible-publishing"
     ],
-    "noteCount": 3
+    "noteCount": 2
   },
   {
     "title": "Privacy",

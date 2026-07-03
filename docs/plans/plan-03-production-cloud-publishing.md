@@ -21,7 +21,7 @@ Local-first means the editorial source and control surface are file-based and po
 Default deployment target:
 
 ```text
-vault / import sources
+Obsidian-compatible vault
         ↓
 content export
         ↓

@@ -1,6 +1,6 @@
 ---
 name: rock-from-space-operator
-description: Operate a Rock from Space project: import content into an Obsidian-compatible vault, export public content, generate indexes, audit privacy, and verify Astro builds.
+description: Operate a Rock from Space project: export public content from an Obsidian-compatible vault, generate indexes, audit privacy, and verify Astro builds.
 ---
 
 # Rock from Space Operator
@@ -22,7 +22,6 @@ Use this skill when working inside a Rock from Space repository or adapting its 
 
 ```bash
 pnpm run reset:demo
-pnpm run import:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content

@@ -129,7 +129,7 @@ Purpose:
 
 - explain source boundaries;
 - list commands;
-- describe safe import/export workflow;
+- describe safe export workflow;
 - require audit before declaring success.
 
 ### 6. Add placeholder command contract
@@ -149,7 +149,7 @@ find . -maxdepth 4 -type f | sort
 Manual checks:
 
 - project has no private paths;
-- docs mention bidirectional import/export;
+- docs mention one-way Obsidian/Markdown-to-Astro publishing;
 - agent docs are portable;
 - demo vault exists and is safe/fictitious;
 - all files are plain text and easy to inspect;

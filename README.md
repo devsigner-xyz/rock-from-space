@@ -1,6 +1,6 @@
 # Rock from Space
 
-Rock from Space is an open-source toolkit for building production-ready Astro websites from an Obsidian-compatible Markdown vault, while also supporting imports back into the vault from external content sources.
+Rock from Space is an open-source toolkit for building production-ready Astro websites from an Obsidian-compatible Markdown vault.
 
 It is designed around a simple idea:
 
@@ -13,7 +13,6 @@ The project is intentionally agnostic: no private paths, no personal project ass
 Many Markdown/Obsidian publishing workflows are either too local, too coupled to a personal vault, or too close to a blog starter. Rock from Space aims to be a safer publishing pipeline:
 
 - edit and organize content in an Obsidian-compatible vault;
-- import content from structured sources into that vault;
 - export only explicitly public content;
 - audit privacy and content integrity before publishing;
 - generate typed indexes for Astro;
@@ -23,8 +22,6 @@ Many Markdown/Obsidian publishing workflows are either too local, too coupled to
 ## Core flow
 
 ```text
-External sources / Markdown / JSON / YAML / CSV / APIs
-        ↓ import
 Obsidian-compatible editorial vault
         ↓ curate / edit / link
 Public export
@@ -47,7 +44,7 @@ Local-first describes the editorial/source workflow. It does **not** mean local-
 - **TypeScript-first**: use TypeScript for Astro, generated data contracts and project tooling when JavaScript would otherwise be used.
 - **Static-first**: prefer static Astro output; opt into SSR/adapters only when a template needs runtime behavior.
 - **SOLID-ish architecture**: small modules, explicit boundaries, dependency injection where useful, no hidden global state.
-- **Deterministic pipeline**: import, export, index and audit scripts should be safe to rerun.
+- **Deterministic pipeline**: export, index and audit scripts should be safe to rerun.
 - **Cloud-ready output**: build artifacts must work in CI/CD and static hosting.
 - **Agent-friendly**: `AGENTS.md`, skills, prompts and checklists are part of the product, not an afterthought.
 
@@ -61,8 +58,7 @@ Local-first describes the editorial/source workflow. It does **not** mean local-
 ├── rfs.config.json
 ├── content/                 # Public exported content. Treat as publishable.
 ├── examples/
-│   ├── demo-vault/           # Disposable Obsidian-compatible demo vault.
-│   └── import/               # Demo import sources.
+│   └── demo-vault/           # Disposable Obsidian-compatible demo vault.
 ├── scripts/                  # Planned TypeScript tooling scripts.
 ├── src/
 │   ├── generated/            # Generated JSON/TS indexes consumed by Astro.
@@ -80,7 +76,7 @@ Local-first describes the editorial/source workflow. It does **not** mean local-
 
 ## Current status
 
-Functional vertical slice with initial hardening is implemented. The project now has real Astro/Vite/TypeScript tooling, demo vault reset/import/export/index/audit/build commands, Vitest unit/integration tests and GitHub Actions CI.
+Functional vertical slice with initial hardening is implemented. The project now has real Astro/Vite/TypeScript tooling, demo vault reset/export/index/audit/build commands, Vitest unit/integration tests and GitHub Actions CI.
 
 The implementation roadmap lives in:
 
@@ -100,7 +96,6 @@ Current command contract:
 ```bash
 pnpm install
 pnpm run reset:demo
-pnpm run import:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content

@@ -5,7 +5,7 @@
 Implement the first working end-to-end pipeline:
 
 ```text
-reset demo vault → import demo content → export public content → generate indexes → audit → build Astro site
+reset demo vault → export public content → generate indexes → audit → build Astro site
 ```
 
 The slice must prove that Rock from Space is not just documentation. It should generate a real static website from a disposable Obsidian-compatible vault.
@@ -15,7 +15,6 @@ The slice must prove that Rock from Space is not just documentation. It should g
 - `package.json` with real scripts.
 - `astro.config.mjs` and `tsconfig.json`.
 - `scripts/reset-demo-vault.ts`.
-- `scripts/import-to-vault.ts`.
 - `scripts/export-from-vault.ts`.
 - `scripts/build-content-indexes.ts`.
 - `scripts/audit-public-content.ts`.
@@ -37,7 +36,6 @@ Target commands:
 
 ```bash
 pnpm run reset:demo
-pnpm run import:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content
@@ -53,7 +51,6 @@ Suggested `package.json` scripts:
   "scripts": {
     "dev": "astro dev --host 0.0.0.0",
     "reset:demo": "tsx scripts/reset-demo-vault.ts",
-    "import:demo": "tsx scripts/import-to-vault.ts --source examples/import/demo-notes.json --target examples/demo-vault",
     "content:export": "tsx scripts/export-from-vault.ts",
     "content:index": "tsx scripts/build-content-indexes.ts",
     "audit:content": "tsx scripts/audit-public-content.ts",
@@ -80,24 +77,6 @@ Safety:
 - must refuse to operate outside the project directory;
 - should print changed files.
 
-### `import-to-vault.ts`
-
-Responsibilities:
-
-- read JSON or Markdown source;
-- create/update notes in the configured vault;
-- preserve stable IDs if provided;
-- generate frontmatter;
-- link topics with wikilinks when configured.
-
-Initial source fixture:
-
-`examples/import/demo-notes.json`
-
-Safety:
-
-- default to no destructive overwrite unless `--apply` or deterministic managed demo mode;
-- for the demo command, overwrite is acceptable because the demo vault is disposable.
 
 ### `export-from-vault.ts`
 
@@ -114,7 +93,7 @@ Responsibilities:
 Safety:
 
 - never export everything by default;
-- fail on missing configured vault unless running reset/import demo first.
+- fail on missing configured vault.
 
 ### `build-content-indexes.ts`
 
@@ -187,7 +166,6 @@ Run:
 ```bash
 pnpm install
 pnpm run reset:demo
-pnpm run import:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content

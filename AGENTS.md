@@ -6,7 +6,7 @@ Operational guide for AI agents working on Rock from Space.
 
 Rock from Space is a generic Obsidian-compatible editorial pipeline plus Astro static rendering toolkit.
 
-It should let users import content into a Markdown/Obsidian editorial vault, export only public content, generate typed indexes, render an Astro site and deploy the resulting `dist/` artifact to production cloud hosting.
+It should let users write and curate content in a Markdown/Obsidian editorial vault, export only public content, generate typed indexes, render an Astro site and deploy the resulting `dist/` artifact to production cloud hosting.
 
 The system must remain agnostic:
 
@@ -40,8 +40,7 @@ Local-first describes the editorial/source workflow, not the hosting model. The 
 - Prefer pure functions for parsing, normalization, slugging, indexing and auditing.
 - Keep side effects at the edges: filesystem reads/writes, process exit, logging.
 - Validate unknown input with schemas before processing.
-- Make import/export deterministic and safe to rerun.
-- Prefer dry-run behavior before overwriting user-controlled vault content.
+- Make export/index/audit deterministic and safe to rerun.
 - Do not hide broken links, private leaks or malformed frontmatter in UI; surface them via audits.
 
 ## Planned technical baseline
@@ -81,7 +80,6 @@ Use these project commands:
 
 ```bash
 pnpm run reset:demo
-pnpm run import:demo
 pnpm run content:export
 pnpm run content:index
 pnpm run audit:content
@@ -125,7 +123,7 @@ Security defaults:
 
 - Do not use secrets in client-side Astro code.
 - Public env vars must be explicitly documented.
-- Treat imported content as untrusted input.
+- Treat vault Markdown/frontmatter as untrusted input.
 - Escape or sanitize rendered content where applicable.
 - Avoid raw HTML rendering unless audited and sanitized.
 - Use allowlists rather than blocklists for public export.

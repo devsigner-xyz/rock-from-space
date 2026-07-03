@@ -55,7 +55,7 @@ The public Astro site continues to consume only `content/` and `src/generated/`.
 - Preview planned export without writing.
 - Show audit report with actionable errors.
 - Show generated routes for notes/topics/collections.
-- Run import/export/index/audit/build commands.
+- Run export/index/audit/build commands.
 - Show diffs before modifying vault files.
 - Manage collection config once Plan 04 exists.
 
