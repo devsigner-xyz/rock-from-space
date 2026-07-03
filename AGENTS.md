@@ -67,12 +67,14 @@ Avoid:
 
 The repo should include portable agent materials:
 
-- `agent/skills/*/SKILL.md` for Hermes-compatible skills that are also readable by other agents;
-- `agent/prompts/` for reusable task prompts;
-- `agent/checklists/` for verification workflows;
+- `agent/skills/rock-from-space-operator/SKILL.md` for Hermes-compatible skills that are also readable by other agents;
+- `agent/prompts/` for reusable task prompts covering publish/review/collection/audit/release work;
+- `agent/checklists/` for pre-deploy, privacy audit, route smoke-test and release workflows;
 - `docs/plans/` for implementation plans.
 
 These files must not depend on strh's private environment.
+
+Agentic operation is optional and portable. The repository must remain usable by humans and other automation without Hermes or any specific LLM provider.
 
 ## Commands
 

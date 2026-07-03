@@ -95,6 +95,15 @@ Manual checks:
 
 ## Done when
 
-- A new coding agent can operate the repo from `AGENTS.md` + `agent/skills/*`.
-- Prompts and checklists cover common safe tasks.
-- Agentic operation is documented as optional and portable.
+- [x] A new coding agent can operate the repo from `AGENTS.md` + `agent/skills/*`.
+- [x] Prompts and checklists cover common safe tasks.
+- [x] Agentic operation is documented as optional and portable.
+
+## Completion notes
+
+Plan 05 is complete in the repository contract:
+
+- `agent/skills/rock-from-space-operator/SKILL.md` documents mission, source boundaries, command contract, export/index/audit/build sequence, privacy scan expectations, and commit/deploy rules.
+- `agent/prompts/` includes publish, review, add-collection, audit troubleshooting and release-note prompts.
+- `agent/checklists/` includes pre-deploy, privacy-audit, route smoke-test, pre-publish summary and release checklists.
+- Agentic operation remains optional and provider-agnostic; Hermes compatibility is a file format convenience, not a runtime dependency.

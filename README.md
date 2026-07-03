@@ -161,9 +161,9 @@ Frontend code must not receive backend-only secrets. If public environment varia
 Rock from Space includes portable agent materials:
 
 - `AGENTS.md` for coding agents;
-- `agent/skills/` for Hermes-compatible but generally readable skills;
-- `agent/prompts/` for repeatable tasks;
-- `agent/checklists/` for verification.
+- `agent/skills/rock-from-space-operator/SKILL.md` for Hermes-compatible but generally readable operation rules;
+- `agent/prompts/` for repeatable tasks such as publishing from a vault, reviewing public output, adding a collection, troubleshooting failed audits and preparing release notes;
+- `agent/checklists/` for pre-deploy, privacy audit, route smoke-test and release verification.
 
 Agents should treat `content/` and `dist/` as public surfaces and run audit/build checks before declaring work complete.
 

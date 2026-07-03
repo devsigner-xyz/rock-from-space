@@ -37,13 +37,13 @@ Expected result:
 
 ## 3. Privacy and public-surface scan
 
-Scan tracked source files and public build artifacts while excluding dependency, VCS, Astro cache and lockfile noise.
+Scan tracked source files and public build artifacts while excluding dependency, VCS, Astro cache, local report and lockfile noise.
 
 Recommended local scan:
 
 ```bash
 pattern="$(printf '%s%s' Watch Out)|$(printf '%s%s' watch out)|$(printf '%s_%s_%s' SUPABASE SERVICE ROLE)|$(printf '%s_%s' SERVICE ROLE)|$(printf '%s://|%s://' postgres postgresql)|password[[:space:]_:-]*[=:]|secret[[:space:]_:-]*[=:]|api_key[[:space:]_:-]*[=:]|token[[:space:]_:-]*[=:]"
-git grep -n -I -E "$pattern" -- ':!node_modules' ':!.git' ':!.astro' ':!dist' ':!pnpm-lock.yaml'
+git grep -n -I -E "$pattern" -- ':!node_modules' ':!.git' ':!.astro' ':!dist' ':!reports' ':!pnpm-lock.yaml'
 ```
 
 Also check for local absolute paths in public surfaces:
@@ -67,6 +67,7 @@ Expected result:
 - [ ] `docs/deployment/` is current for the supported hosting path.
 - [ ] `docs/plans/` reflects completed and remaining work.
 - [ ] `agent/skills/`, `agent/prompts/` and `agent/checklists/` are portable and free of private environment assumptions.
+- [ ] `agent/checklists/pre-deploy.md`, `privacy-audit.md` and `route-smoke-test.md` match the current command contract.
 
 ## 5. Demo evidence
 
