@@ -14,6 +14,14 @@ const site = {
   base: '/'
 };
 const routes = { notes: '/notes', topics: '/topics' };
+const notesCollection = {
+  name: 'notes',
+  source: 'Notes/**',
+  route: '/notes',
+  template: 'note',
+  schema: { required: ['title', 'publish'], optional: ['topics'] }
+};
+const topicsTaxonomy = { name: 'topics', field: 'topics', route: '/topics', source: 'Topics/**', template: 'topic' };
 
 let tempDirs: string[] = [];
 
@@ -86,7 +94,104 @@ describe('content pipeline integration', () => {
     });
 
     expect(result.exported).toEqual(['Notes/Valid Note.md']);
-    await expect(readFile(path.join(outputRoot, 'Notes/Valid Note.md'), 'utf8')).resolves.toContain('topics: ["Markdown"]');
+    const exported = await readFile(path.join(outputRoot, 'Notes/Valid Note.md'), 'utf8');
+    expect(exported).toContain('topics: ["Markdown"]');
+  });
+
+  it('exports Obsidian-style multiline YAML while keeping only public allowlisted fields', async () => {
+    const outputRoot = path.join(await tempDir(), 'content');
+
+    const result = await exportPublicContent({
+      vaultRoot: path.join(fixturesRoot, 'obsidian-yaml-vault'),
+      outputRoot,
+      allow: ['Notes/**'],
+      ignore: [],
+      publish,
+      blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      collections: [notesCollection],
+      taxonomies: [topicsTaxonomy]
+    });
+
+    expect(result.exported).toEqual(['Notes/Multiline Properties.md']);
+    const exported = await readFile(path.join(outputRoot, 'Notes/Multiline Properties.md'), 'utf8');
+    expect(exported).toContain('title: "Multiline Properties"');
+    expect(exported).toContain('topics: ["Markdown", "Privacy"]');
+    expect(exported).not.toContain('editorial_status');
+    expect(exported).not.toContain('created:');
+  });
+
+  it('generates a topic route from note metadata even without a Topics term page', async () => {
+    const outputRoot = path.join(await tempDir(), 'content');
+    await exportPublicContent({
+      vaultRoot: path.join(fixturesRoot, 'generated-topic-vault'),
+      outputRoot,
+      allow: ['Notes/**', 'Topics/**'],
+      ignore: [],
+      publish,
+      blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      collections: [notesCollection],
+      taxonomies: [topicsTaxonomy]
+    });
+
+    const indexes = await buildContentIndexes({ contentRoot: outputRoot, routes, site, collections: [notesCollection], taxonomies: [topicsTaxonomy] });
+
+    expect(indexes.topics).toEqual([
+      expect.objectContaining({ title: 'Unwritten Topic', slug: 'unwritten-topic', path: null, noteSlugs: ['generated-topic'], noteCount: 1 })
+    ]);
+  });
+
+  it('enriches a generated topic when a matching Topics term page exists', async () => {
+    const outputRoot = path.join(await tempDir(), 'content');
+    await exportPublicContent({
+      vaultRoot: path.join(fixturesRoot, 'enriched-topic-vault'),
+      outputRoot,
+      allow: ['Notes/**', 'Topics/**'],
+      ignore: [],
+      publish,
+      blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      collections: [notesCollection],
+      taxonomies: [topicsTaxonomy]
+    });
+
+    const indexes = await buildContentIndexes({ contentRoot: outputRoot, routes, site, collections: [notesCollection], taxonomies: [topicsTaxonomy] });
+    const topic = indexes.topics.find((candidate) => candidate.slug === 'enriched-topic');
+
+    expect(topic).toEqual(expect.objectContaining({ title: 'Enriched Topic', path: 'Topics/Enriched Topic.md', noteSlugs: ['enriched-topic-note'], noteCount: 1 }));
+    expect(topic?.bodyHtml).toContain('term page can enrich generated topic output');
+  });
+
+  it('represents a second collection without hardcoded note routing', async () => {
+    const outputRoot = path.join(await tempDir(), 'content');
+    const guidesCollection = {
+      name: 'guides',
+      source: 'Guides/**',
+      route: '/guides',
+      template: 'article',
+      schema: { required: ['title', 'publish'], optional: ['topics'] }
+    };
+
+    await exportPublicContent({
+      vaultRoot: path.join(fixturesRoot, 'second-collection-vault'),
+      outputRoot,
+      allow: ['Guides/**'],
+      ignore: [],
+      publish,
+      blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      collections: [notesCollection, guidesCollection],
+      taxonomies: [topicsTaxonomy]
+    });
+    const indexes = await buildContentIndexes({
+      contentRoot: outputRoot,
+      routes,
+      site,
+      collections: [notesCollection, guidesCollection],
+      taxonomies: [topicsTaxonomy]
+    });
+
+    expect(indexes.collections.find((collection) => collection.name === 'guides')).toEqual(
+      expect.objectContaining({ route: '/guides', template: 'article', pageCount: 1, pages: [expect.objectContaining({ slug: 'first-guide' })] })
+    );
+    expect(indexes.pages.find((page) => page.slug === 'first-guide')).toEqual(expect.objectContaining({ collection: 'guides', kind: 'collection', route: '/guides/first-guide/' }));
   });
 
   it('fails export when a publishable note has no title', async () => {
@@ -154,7 +259,7 @@ describe('content pipeline integration', () => {
     const second = await buildContentIndexes({ contentRoot: outputRoot, routes, site });
 
     expect(second).toEqual(first);
-    expect(first.meta).toEqual({ pageCount: 3, noteCount: 1, topicCount: 1, site });
+    expect(first.meta).toEqual({ pageCount: 3, noteCount: 1, topicCount: 1, collectionCount: 0, site });
     expect(first.pages.map((page) => page.slug)).toEqual(['home', 'markdown', 'public-alpha']);
     expect(first.links).toEqual([
       { from: 'home', to: 'public-alpha', label: 'Public Alpha' },

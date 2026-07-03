@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import collectionsRaw from '../../generated/collections.json';
+import pagesRaw from '../../generated/pages.json';
+
+interface PublicPage {
+  title: string;
+  slug: string;
+  kind: 'note' | 'topic' | 'index' | 'collection';
+  collection: string | null;
+  route: string;
+  topics: string[];
+  bodyHtml: string;
+  backlinks: string[];
+}
+interface PublicCollectionIndex { name: string; route: string; }
+
+export function getStaticPaths() {
+  const collections = (collectionsRaw as PublicCollectionIndex[]).filter((collection) => !['notes'].includes(collection.name));
+  const pages = pagesRaw as PublicPage[];
+  return collections.flatMap((collection) =>
+    pages
+      .filter((page) => page.collection === collection.name)
+      .map((page) => ({ params: { collection: collection.route.replace(/^\//, ''), slug: page.slug }, props: { page } }))
+  );
+}
+
+const { page } = Astro.props as { page: PublicPage };
+const pages = pagesRaw as PublicPage[];
+const backlinks = page.backlinks
+  .map((slug) => pages.find((candidate) => candidate.slug === slug))
+  .filter((candidate): candidate is PublicPage => Boolean(candidate));
+---
+<BaseLayout title={`${page.title} — Rock from Space Demo`}>
+  <article class="article">
+    <p class="kicker">{page.collection ?? 'Collection'} page</p>
+    <h1>{page.title}</h1>
+    {page.topics.length > 0 && <p class="muted">{page.topics.join(', ')}</p>}
+    <div set:html={page.bodyHtml} />
+    {backlinks.length > 0 && (
+      <section>
+        <h2>Backlinks</h2>
+        <ul>
+          {backlinks.map((backlink) => <li><a href={backlink.route}>{backlink.title}</a></li>)}
+        </ul>
+      </section>
+    )}
+  </article>
+</BaseLayout>

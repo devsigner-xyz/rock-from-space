@@ -1,0 +1,38 @@
+[
+  {
+    "name": "notes",
+    "route": "/notes",
+    "template": "note",
+    "source": "Notes/**",
+    "schema": {
+      "required": [
+        "title",
+        "publish"
+      ],
+      "optional": [
+        "topics"
+      ]
+    },
+    "pages": [
+      {
+        "title": "Astro static rendering",
+        "slug": "astro-static-rendering",
+        "path": "Notes/Astro static rendering.md",
+        "topics": [
+          "Markdown",
+          "Static Sites"
+        ]
+      },
+      {
+        "title": "Obsidian compatible publishing",
+        "slug": "obsidian-compatible-publishing",
+        "path": "Notes/Obsidian compatible publishing.md",
+        "topics": [
+          "Markdown",
+          "Privacy"
+        ]
+      }
+    ],
+    "pageCount": 2
+  }
+]

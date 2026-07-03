@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import collectionsRaw from '../../generated/collections.json';
+
+interface PublicCollectionIndex {
+  name: string;
+  route: string;
+  template: string;
+  pages: Array<{ title: string; slug: string; topics: string[] }>;
+}
+
+export function getStaticPaths() {
+  return (collectionsRaw as PublicCollectionIndex[])
+    .filter((collection) => !['notes'].includes(collection.name))
+    .map((collection) => ({ params: { collection: collection.route.replace(/^\//, '') }, props: { collection } }));
+}
+
+const { collection } = Astro.props as { collection: PublicCollectionIndex };
+---
+<BaseLayout title={`${collection.name} — Rock from Space Demo`}>
+  <section class="hero">
+    <p class="kicker">Collection</p>
+    <h1>{collection.name}</h1>
+    <p>Public pages generated from the {collection.name} collection.</p>
+  </section>
+
+  <div class="grid">
+    {collection.pages.map((page) => (
+      <a class="card" href={`${collection.route}/${page.slug}/`}>
+        <strong>{page.title}</strong>
+        <p>{page.topics.join(', ') || 'No topics'}</p>
+      </a>
+    ))}
+  </div>
+</BaseLayout>

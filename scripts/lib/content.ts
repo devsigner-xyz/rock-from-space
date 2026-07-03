@@ -1,8 +1,11 @@
 import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 
 export const projectRoot = process.cwd();
+
+const FieldSchema = z.string().min(1);
 
 const CollectionConfigSchema = z.object({
   name: z.string().min(1),
@@ -10,9 +13,17 @@ const CollectionConfigSchema = z.object({
   route: z.string().min(1),
   template: z.string().min(1),
   schema: z.object({
-    required: z.array(z.string()),
-    optional: z.array(z.string()).default([])
+    required: z.array(FieldSchema),
+    optional: z.array(FieldSchema).default([])
   })
+}).strict();
+
+const TaxonomyConfigSchema = z.object({
+  name: z.string().min(1),
+  field: z.string().min(1),
+  route: z.string().min(1),
+  source: z.string().min(1).optional(),
+  template: z.string().min(1).default('taxonomy')
 }).strict();
 
 const ConfigSchema = z.object({
@@ -39,6 +50,7 @@ const ConfigSchema = z.object({
     topics: z.string()
   }),
   collections: z.array(CollectionConfigSchema).default([]),
+  taxonomies: z.array(TaxonomyConfigSchema).default([]),
   privacy: z.object({
     forbiddenPatterns: z.array(z.string()),
     blockedFrontmatterFields: z.array(z.string()).default([]),
@@ -59,6 +71,7 @@ const ConfigSchema = z.object({
 
 export type RfsConfig = z.infer<typeof ConfigSchema>;
 export type CollectionConfig = z.infer<typeof CollectionConfigSchema>;
+export type TaxonomyConfig = z.infer<typeof TaxonomyConfigSchema>;
 
 export interface ParsedMarkdown {
   frontmatter: Record<string, unknown>;
@@ -69,7 +82,10 @@ export interface PublicPage {
   title: string;
   slug: string;
   path: string;
-  kind: 'note' | 'topic' | 'index';
+  kind: 'note' | 'topic' | 'index' | 'collection';
+  collection: string | null;
+  template: string | null;
+  route: string;
   topics: string[];
   body: string;
   bodyHtml: string;
@@ -87,9 +103,38 @@ export interface PublicTopic {
   noteCount: number;
 }
 
+export interface PublicCollectionIndex {
+  name: string;
+  route: string;
+  template: string;
+  source: string;
+  schema: {
+    required: string[];
+    optional: string[];
+  };
+  pages: Array<{
+    title: string;
+    slug: string;
+    path: string;
+    topics: string[];
+  }>;
+  pageCount: number;
+}
+
 export async function readConfig(): Promise<RfsConfig> {
   const raw = await readFile(path.join(projectRoot, 'rfs.config.json'), 'utf8');
-  return ConfigSchema.parse(JSON.parse(raw));
+  const config = ConfigSchema.parse(JSON.parse(raw));
+  assertUniqueNames(config.collections.map((collection) => collection.name), 'collection');
+  assertUniqueNames(config.taxonomies.map((taxonomy) => taxonomy.name), 'taxonomy');
+  return config;
+}
+
+function assertUniqueNames(values: string[], label: string): void {
+  const seen = new Set<string>();
+  for (const value of values) {
+    if (seen.has(value)) throw new Error(`Duplicate ${label} name: ${value}`);
+    seen.add(value);
+  }
 }
 
 export function resolveInsideRoot(relativePath: string): string {
@@ -138,6 +183,10 @@ export function isAllowed(relativePath: string, allow: string[], ignore: string[
   return allow.some((pattern) => matchesPattern(posix, pattern));
 }
 
+export function matchesGlob(value: string, pattern: string): boolean {
+  return matchesPattern(toPosix(value), pattern);
+}
+
 function matchesPattern(value: string, pattern: string): boolean {
   if (pattern.startsWith('**/') && pattern.endsWith('/**')) {
     const segment = pattern.slice(3, -3);
@@ -154,7 +203,10 @@ export function parseMarkdown(source: string): ParsedMarkdown {
   if (end === -1) return { frontmatter: {}, body: source.trim() };
   const yaml = source.slice(4, end);
   const body = source.slice(end + 5).trim();
-  return { frontmatter: parseSimpleYaml(yaml), body };
+  const parsed = parseYaml(yaml) as unknown;
+  if (parsed == null) return { frontmatter: {}, body };
+  if (!isPlainRecord(parsed)) throw new Error('Frontmatter must be a YAML object');
+  return { frontmatter: parsed, body };
 }
 
 export function serializeMarkdown(frontmatter: Record<string, unknown>, body: string): string {
@@ -162,35 +214,68 @@ export function serializeMarkdown(frontmatter: Record<string, unknown>, body: st
   return `---\n${lines.join('\n')}\n---\n\n${body.trim()}\n`;
 }
 
-function parseSimpleYaml(yaml: string): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const line of yaml.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const separator = trimmed.indexOf(':');
-    if (separator === -1) continue;
-    const key = trimmed.slice(0, separator).trim();
-    const rawValue = trimmed.slice(separator + 1).trim();
-    result[key] = parseYamlValue(rawValue);
-  }
-  return result;
-}
-
-function parseYamlValue(value: string): unknown {
-  if (value === 'true') return true;
-  if (value === 'false') return false;
-  if (value.startsWith('[') && value.endsWith(']')) {
-    const inner = value.slice(1, -1).trim();
-    if (!inner) return [];
-    return inner.split(',').map((item) => item.trim().replace(/^['\"]|['\"]$/g, ''));
-  }
-  return value.replace(/^['\"]|['\"]$/g, '');
-}
-
 function formatYamlValue(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map((item) => JSON.stringify(String(item))).join(', ')}]`;
   if (typeof value === 'boolean') return String(value);
   return JSON.stringify(String(value));
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export function normalizePublicFrontmatter(
+  frontmatter: Record<string, unknown>,
+  relativePath: string,
+  required: string[],
+  optional: string[]
+): { normalized: Record<string, unknown>; failures: string[] } {
+  const allowed = new Set([...required, ...optional]);
+  const failures: string[] = [];
+  const normalized: Record<string, unknown> = {};
+
+  for (const field of required) {
+    if (!Object.hasOwn(frontmatter, field)) {
+      const validated = validatePublicField(field, undefined, relativePath);
+      failures.push(validated.ok ? `${relativePath}: ${field} is required` : validated.message);
+    }
+  }
+
+  for (const field of allowed) {
+    if (!Object.hasOwn(frontmatter, field)) continue;
+    const value = frontmatter[field];
+    const validated = validatePublicField(field, value, relativePath);
+    if (validated.ok) normalized[field] = validated.value;
+    else failures.push(validated.message);
+  }
+
+  return { normalized, failures };
+}
+
+function validatePublicField(
+  field: string,
+  value: unknown,
+  relativePath: string
+): { ok: true; value: unknown } | { ok: false; message: string } {
+  if (field === 'title') {
+    if (typeof value === 'string' && value.trim()) return { ok: true, value: value.trim() };
+    return { ok: false, message: `${relativePath}: title must be a non-empty string` };
+  }
+  if (field === 'publish') {
+    if (typeof value === 'boolean') return { ok: true, value };
+    return { ok: false, message: `${relativePath}: publish must be a boolean` };
+  }
+  if (field === 'topics') {
+    if (Array.isArray(value) && value.every((item) => typeof item === 'string' && item.trim().length > 0)) {
+      return { ok: true, value: value.map((item) => item.trim()) };
+    }
+    return { ok: false, message: `${relativePath}: topics must be an array of non-empty strings when provided` };
+  }
+  return { ok: true, value };
+}
+
+export function validatePublicFrontmatter(frontmatter: Record<string, unknown>, relativePath: string): string[] {
+  return normalizePublicFrontmatter(frontmatter, relativePath, ['title', 'publish'], ['topics']).failures;
 }
 
 export function slugify(value: string): string {
@@ -209,23 +294,6 @@ export function getString(value: unknown, fallback: string): string {
 export function getStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0).map((item) => item.trim());
-}
-
-export function validatePublicFrontmatter(frontmatter: Record<string, unknown>, relativePath: string): string[] {
-  const failures: string[] = [];
-  if (typeof frontmatter['title'] !== 'string' || !frontmatter['title'].trim()) {
-    failures.push(`${relativePath}: title must be a non-empty string`);
-  }
-  if (typeof frontmatter['publish'] !== 'boolean') {
-    failures.push(`${relativePath}: publish must be a boolean`);
-  }
-  if (Object.hasOwn(frontmatter, 'topics')) {
-    const topics = frontmatter['topics'];
-    if (!Array.isArray(topics) || !topics.every((item) => typeof item === 'string' && item.trim().length > 0)) {
-      failures.push(`${relativePath}: topics must be an array of non-empty strings when provided`);
-    }
-  }
-  return failures;
 }
 
 export function extractWikilinks(body: string): string[] {

@@ -6,15 +6,16 @@ import {
   getStringArray,
   isAllowed,
   listMarkdownFiles,
+  matchesGlob,
+  normalizePublicFrontmatter,
   parseMarkdown,
   renderMarkdownToSafeHtml,
   serializeMarkdown,
   slugify,
   toPosix,
-  validatePublicFrontmatter,
   writeJson
 } from './content.ts';
-import type { PublicPage, PublicTopic, RfsConfig } from './content.ts';
+import type { CollectionConfig, PublicCollectionIndex, PublicPage, PublicTopic, RfsConfig, TaxonomyConfig } from './content.ts';
 
 export interface ExportPublicContentOptions {
   vaultRoot: string;
@@ -23,6 +24,8 @@ export interface ExportPublicContentOptions {
   ignore: string[];
   publish: RfsConfig['publish'];
   blockedFrontmatterFields: string[];
+  collections?: CollectionConfig[];
+  taxonomies?: TaxonomyConfig[];
 }
 
 export interface ExportPublicContentResult {
@@ -61,17 +64,22 @@ export async function exportPublicContent(options: ExportPublicContentOptions): 
       }
     }
 
-    const frontmatterFailures = validatePublicFrontmatter(parsed.frontmatter, relative);
-    if (frontmatterFailures.length > 0) {
-      throw new Error(`Invalid public frontmatter in ${relative}: ${frontmatterFailures.join('; ')}`);
+    const contract = publicContractForPath(relative, options.collections ?? [], options.taxonomies ?? []);
+    const { normalized, failures } = normalizePublicFrontmatter(parsed.frontmatter, relative, contract.required, contract.optional);
+    if (failures.length > 0) {
+      throw new Error(`Invalid public frontmatter in ${relative}: ${failures.join('; ')}`);
     }
 
-    const title = getString(parsed.frontmatter['title'], path.basename(relative, '.md'));
-    const topics = getStringArray(parsed.frontmatter['topics']);
-    const normalized = serializeMarkdown({ title, publish: true, topics }, parsed.body);
+    const title = getString(normalized['title'], path.basename(relative, '.md'));
+    const topics = getStringArray(normalized['topics']);
+    const publicFrontmatter = Object.fromEntries(
+      Object.entries(normalized).filter(([field]) => field !== 'title' && field !== 'publish' && field !== 'topics')
+    );
+    const exportedFrontmatter = { title, publish: true, topics, ...publicFrontmatter };
+    const normalizedMarkdown = serializeMarkdown(exportedFrontmatter, parsed.body);
     const target = path.join(options.outputRoot, relative);
     await mkdir(path.dirname(target), { recursive: true });
-    await writeFile(target, normalized, 'utf8');
+    await writeFile(target, normalizedMarkdown, 'utf8');
     exported.push(relative);
   }
 
@@ -82,28 +90,48 @@ export async function exportPublicContent(options: ExportPublicContentOptions): 
   };
 }
 
+function publicContractForPath(
+  relative: string,
+  collections: CollectionConfig[],
+  taxonomies: TaxonomyConfig[]
+): { required: string[]; optional: string[] } {
+  const collection = collections.find((candidate) => matchesGlob(relative, candidate.source));
+  if (collection) return collection.schema;
+  const taxonomy = taxonomies.find((candidate) => candidate.source && matchesGlob(relative, candidate.source));
+  if (taxonomy) return { required: ['title', 'publish'], optional: [taxonomy.field] };
+  return { required: ['title', 'publish'], optional: ['topics'] };
+}
+
 export interface BuildContentIndexesOptions {
   contentRoot: string;
   routes: RfsConfig['routes'];
   site: RfsConfig['site'];
+  collections?: CollectionConfig[];
+  taxonomies?: TaxonomyConfig[];
 }
 
 export interface ContentIndexes {
   pages: PublicPage[];
   topics: PublicTopic[];
+  collections: PublicCollectionIndex[];
   links: Array<{ from: string; to: string; label: string }>;
   meta: {
     pageCount: number;
     noteCount: number;
     topicCount: number;
+    collectionCount: number;
     site: RfsConfig['site'];
   };
 }
 
 export async function buildContentIndexes(options: BuildContentIndexesOptions): Promise<ContentIndexes> {
   const files = await listMarkdownFiles(options.contentRoot);
+  const collections = options.collections ?? [];
+  const taxonomies = options.taxonomies ?? [];
+  const topicTaxonomy = taxonomies.find((taxonomy) => taxonomy.name === 'topics' || taxonomy.field === 'topics');
 
   const basePages: Omit<PublicPage, 'backlinks' | 'bodyHtml'>[] = [];
+  const titleToRoute = new Map<string, string>();
   const titleToSlug = new Map<string, string>();
 
   for (const absolute of files) {
@@ -111,12 +139,27 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
     const source = await readFile(absolute, 'utf8');
     const parsed = parseMarkdown(source);
     const title = getString(parsed.frontmatter['title'], path.basename(relative, '.md'));
-    const kind: PublicPage['kind'] = relative === 'index.md' ? 'index' : relative.startsWith('Topics/') ? 'topic' : 'note';
+    const collection = collections.find((candidate) => matchesGlob(relative, candidate.source));
+    const isTopicTerm = topicTaxonomy?.source ? matchesGlob(relative, topicTaxonomy.source) : relative.startsWith('Topics/');
+    const kind: PublicPage['kind'] = relative === 'index.md' ? 'index' : isTopicTerm ? 'topic' : collection ? (collection.name === 'notes' ? 'note' : 'collection') : 'note';
     const slug = kind === 'index' ? 'home' : slugify(title);
-    const topics = getStringArray(parsed.frontmatter['topics']);
+    const route = routeForPage(kind, slug, collection, options.routes, topicTaxonomy);
+    const topics = getStringArray(parsed.frontmatter[topicTaxonomy?.field ?? 'topics']);
     const links = extractWikilinks(parsed.body);
-    basePages.push({ title, slug, path: relative, kind, topics, body: parsed.body, links });
+    basePages.push({
+      title,
+      slug,
+      path: relative,
+      kind,
+      collection: collection?.name ?? null,
+      template: collection?.template ?? (kind === 'topic' ? topicTaxonomy?.template ?? 'taxonomy' : null),
+      route,
+      topics,
+      body: parsed.body,
+      links
+    });
     titleToSlug.set(title, slug);
+    titleToRoute.set(title, route);
   }
 
   const pages: PublicPage[] = basePages.map((page) => {
@@ -124,18 +167,11 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
       .filter((candidate) => candidate.links.some((link) => titleToSlug.get(link) === page.slug))
       .map((candidate) => candidate.slug)
       .sort();
-    const bodyHtml = renderMarkdownToSafeHtml(page.body, (label) => {
-      const slug = titleToSlug.get(label) ?? slugify(label);
-      const target = basePages.find((candidate) => candidate.slug === slug);
-      if (!target) return null;
-      if (target.kind === 'topic') return `${options.routes.topics}/${target.slug}/`;
-      if (target.kind === 'note') return `${options.routes.notes}/${target.slug}/`;
-      return '/';
-    });
+    const bodyHtml = renderMarkdownToSafeHtml(page.body, (label) => titleToRoute.get(label) ?? null);
     return { ...page, backlinks, bodyHtml };
   });
 
-  const notePages = pages.filter((page) => page.kind === 'note');
+  const notePages = pages.filter((page) => page.collection === 'notes' || page.kind === 'note');
   const topicPages = pages.filter((page) => page.kind === 'topic');
   const topicsByTitle = new Map<string, PublicTopic>();
 
@@ -163,11 +199,26 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
         noteCount: 0
       };
       existing.noteSlugs.push(note.slug);
-      existing.noteSlugs.sort();
+      existing.noteSlugs = Array.from(new Set(existing.noteSlugs)).sort();
       existing.noteCount = existing.noteSlugs.length;
       topicsByTitle.set(topicTitle, existing);
     }
   }
+
+  const collectionIndexes: PublicCollectionIndex[] = collections.map((collection) => {
+    const collectionPages = pages
+      .filter((page) => page.collection === collection.name)
+      .sort((a, b) => a.title.localeCompare(b.title));
+    return {
+      name: collection.name,
+      route: collection.route,
+      template: collection.template,
+      source: collection.source,
+      schema: collection.schema,
+      pages: collectionPages.map((page) => ({ title: page.title, slug: page.slug, path: page.path, topics: page.topics })),
+      pageCount: collectionPages.length
+    };
+  });
 
   const topics = Array.from(topicsByTitle.values()).sort((a, b) => a.title.localeCompare(b.title));
   const links = pages.flatMap((page) => page.links.map((target) => ({ from: page.slug, to: titleToSlug.get(target) ?? slugify(target), label: target })));
@@ -175,20 +226,36 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
     pageCount: pages.length,
     noteCount: notePages.length,
     topicCount: topics.length,
+    collectionCount: collectionIndexes.length,
     site: options.site
   };
 
   return {
     pages: pages.sort((a, b) => a.title.localeCompare(b.title)),
     topics,
+    collections: collectionIndexes.sort((a, b) => a.name.localeCompare(b.name)),
     links,
     meta
   };
 }
 
+function routeForPage(
+  kind: PublicPage['kind'],
+  slug: string,
+  collection: CollectionConfig | undefined,
+  routes: RfsConfig['routes'],
+  topicTaxonomy: TaxonomyConfig | undefined
+): string {
+  if (kind === 'index') return '/';
+  if (kind === 'topic') return `${topicTaxonomy?.route ?? routes.topics}/${slug}/`;
+  if (collection) return `${collection.route}/${slug}/`;
+  return `${routes.notes}/${slug}/`;
+}
+
 export async function writeContentIndexes(indexes: ContentIndexes, generatedRoot = 'src/generated'): Promise<void> {
   await writeJson(`${generatedRoot}/pages.json`, indexes.pages);
   await writeJson(`${generatedRoot}/topics.json`, indexes.topics);
+  await writeJson(`${generatedRoot}/collections.json`, indexes.collections);
   await writeJson(`${generatedRoot}/links.json`, indexes.links);
   await writeJson(`${generatedRoot}/meta.json`, indexes.meta);
 }
@@ -201,6 +268,8 @@ export interface AuditPublicContentOptions {
   blockedFrontmatterFields: string[];
   publish: RfsConfig['publish'];
   failOnBrokenWikilinks: boolean;
+  collections?: CollectionConfig[];
+  taxonomies?: TaxonomyConfig[];
 }
 
 export interface AuditPublicContentResult {
@@ -238,7 +307,10 @@ export async function auditPublicContent(options: AuditPublicContentOptions): Pr
             failures.push(`${relative}: blocked frontmatter field '${blocked}'`);
           }
         }
-        failures.push(...validatePublicFrontmatter(parsed.frontmatter, relative));
+        const contentRelative = toPosix(path.relative(options.contentRoot, file));
+        const contract = publicContractForPath(contentRelative, options.collections ?? [], options.taxonomies ?? []);
+        const contractFailures = normalizePublicFrontmatter(parsed.frontmatter, relative, contract.required, contract.optional).failures;
+        failures.push(...contractFailures);
       }
     }
   }

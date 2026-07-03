@@ -2,6 +2,7 @@
   "pageCount": 6,
   "noteCount": 2,
   "topicCount": 3,
+  "collectionCount": 1,
   "site": {
     "title": "Rock from Space Demo",
     "description": "An Obsidian-compatible Markdown vault rendered with Astro.",

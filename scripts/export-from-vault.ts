@@ -19,7 +19,9 @@ const result = await exportPublicContent({
   allow: config.vault.allow,
   ignore: config.vault.ignore,
   publish: config.publish,
-  blockedFrontmatterFields: config.privacy.blockedFrontmatterFields
+  blockedFrontmatterFields: config.privacy.blockedFrontmatterFields,
+  collections: config.collections,
+  taxonomies: config.taxonomies
 });
 
 console.log(`Exported ${result.exported.length} public Markdown files to ${config.publish.output}`);

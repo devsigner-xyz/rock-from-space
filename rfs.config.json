@@ -40,6 +40,15 @@
       }
     }
   ],
+  "taxonomies": [
+    {
+      "name": "topics",
+      "field": "topics",
+      "route": "/topics",
+      "source": "Topics/**",
+      "template": "topic"
+    }
+  ],
   "privacy": {
     "forbiddenPatterns": [
       "/home/",

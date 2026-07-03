@@ -22,7 +22,9 @@ const result = await auditPublicContent({
   forbiddenPatterns: config.privacy.forbiddenPatterns,
   blockedFrontmatterFields: config.privacy.blockedFrontmatterFields,
   publish: config.publish,
-  failOnBrokenWikilinks
+  failOnBrokenWikilinks,
+  collections: config.collections,
+  taxonomies: config.taxonomies
 });
 
 if (reportPath) {

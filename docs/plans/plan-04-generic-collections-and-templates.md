@@ -68,19 +68,19 @@ normalized public frontmatter
 
 Tasks:
 
-- [ ] Replace the custom `parseSimpleYaml` implementation with a real parser such as `yaml` or `gray-matter`.
-- [ ] Add fixtures for Obsidian-style multiline properties:
+- [x] Replace the custom `parseSimpleYaml` implementation with a real parser such as `yaml` or `gray-matter`.
+- [x] Add fixtures for Obsidian-style multiline properties:
   - `topics` as a YAML list;
   - extra editorial/private fields;
   - dates or non-string metadata that should be ignored unless schema-approved.
-- [ ] Keep public validation strict after parsing:
+- [x] Keep public validation strict after parsing:
   - `title` must be a non-empty string;
   - `publish` must be boolean;
   - `topics`, when present, must normalize to an array of non-empty strings.
-- [ ] Introduce a per-collection public-field allowlist so extra Obsidian properties can exist in source notes without leaking into `content/`.
-- [ ] Keep blocked/private fields fail-closed for publishable notes, even when the parser supports richer YAML.
-- [ ] Document the supported Obsidian Properties shape in README and AGENTS.
-- [ ] Add regression tests proving multiline Obsidian YAML exports and audits correctly.
+- [x] Introduce a per-collection public-field allowlist so extra Obsidian properties can exist in source notes without leaking into `content/`.
+- [x] Keep blocked/private fields fail-closed for publishable notes, even when the parser supports richer YAML.
+- [x] Document the supported Obsidian Properties shape in README and AGENTS.
+- [x] Add regression tests proving multiline Obsidian YAML exports and audits correctly.
 
 Non-goals for this subplan:
 
@@ -94,7 +94,7 @@ Non-goals for this subplan:
 
 - [x] Add typed collection config parsing for the initial `notes` collection.
 - [x] Keep `notes` as the default collection while preserving existing notes/topics behavior.
-- [ ] Treat `topics` as taxonomy-like collection or relation depending on final schema.
+- [x] Treat `topics` as taxonomy-like collection or relation depending on final schema.
 - [x] Ensure unknown collection config fails validation.
 
 ### 2. Validate frontmatter
@@ -103,7 +103,7 @@ Non-goals for this subplan:
   - `title` non-empty string;
   - `publish` boolean;
   - `topics` string array optional.
-- [ ] Add collection-specific optional/required fields beyond the initial `notes` schema.
+- [x] Add collection-specific optional/required fields beyond the initial `notes` schema.
 - [x] Fail export or audit on malformed public content.
 
 ### 3. Generate collection indexes
@@ -119,11 +119,15 @@ src/generated/links.json
 
 Do not include private source absolute paths.
 
+Status: implemented with `src/generated/collections.json` while preserving `pages.json`, `topics.json`, `links.json` and `meta.json`.
+
 ### 4. Add generic Astro templates
 
 - Preserve existing concrete routes while moving logic to reusable helpers/components.
 - Avoid framework islands unless genuinely needed.
 - Keep static `getStaticPaths()` self-contained.
+
+Status: implemented with compatibility routes for `/notes/` and `/topics/` plus generic non-`notes` collection routes under `src/pages/[collection]/`.
 
 ### 5. Tests
 
@@ -134,6 +138,15 @@ Add fixtures for:
 - ignored collection file;
 - collection-specific route generation;
 - backlinks/topics across collections.
+
+Additional coverage added for YAML multiline Obsidian frontmatter, generated topics without term pages, enriched topics with optional `Topics/*.md`, second collection representation and schema/frontmatter errors.
+
+## Final product decision
+
+- `notes` is a collection.
+- `topics` is a taxonomy, not a primary collection.
+- `Topics/*.md` are optional term pages for enriching topics.
+- `/topics/[slug]/` must be generated from note metadata even if no `Topics/<topic>.md` file exists.
 
 ## Verification
 

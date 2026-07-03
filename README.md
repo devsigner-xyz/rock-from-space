@@ -109,11 +109,28 @@ pnpm run preview
 pnpm run preview:prod
 ```
 
-## Collection config
+## Collections, taxonomies and frontmatter
 
-`rfs.config.json` now includes an explicit `collections` contract while preserving the existing notes/topics routes. The initial collection is `notes` with `source: "Notes/**"`, `route: "/notes"`, `template: "note"` and a minimum public frontmatter schema: required `title` and `publish`, optional `topics`.
+`rfs.config.json` includes explicit `collections` and `taxonomies` contracts while preserving the existing `/notes/` and `/topics/` routes.
 
-Public Markdown validation fails before deploy when a publishable/exported note has an empty or missing `title`, non-boolean `publish`, or `topics` that is not an array of non-empty strings.
+Current default:
+
+- `notes` is the primary collection: `source: "Notes/**"`, `route: "/notes"`, `template: "note"`.
+- `topics` is a taxonomy, not a primary collection: `field: "topics"`, `route: "/topics"`, optional term pages from `Topics/**`.
+- A topic route is generated from note metadata even when no `Topics/<topic>.md` file exists.
+- A matching `Topics/<topic>.md` file can enrich the generated topic page with body content.
+
+The exporter parses real Obsidian-compatible YAML frontmatter, including multiline arrays and extra editorial metadata, then normalizes only schema-approved public fields into `content/`. Extra properties are ignored unless they are blocked/private fields, which fail closed for publishable notes.
+
+Minimum public validation fails before deploy when a publishable/exported item has an empty or missing `title`, non-boolean `publish`, or `topics` that is not an array of non-empty strings.
+
+Generated contracts currently include:
+
+- `src/generated/pages.json`
+- `src/generated/collections.json`
+- `src/generated/topics.json`
+- `src/generated/links.json`
+- `src/generated/meta.json`
 
 ## CI
 

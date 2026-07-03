@@ -105,6 +105,7 @@ Smoke at least:
 - one `/notes/[slug]/` page
 - `/topics/`
 - one `/topics/[slug]/` page
+- one configured non-`notes` collection route when `collections` includes another public collection
 
 If commands are not implemented yet, do not pretend they passed. Update docs/plans or implement the missing command.
 
@@ -121,6 +122,15 @@ Before declaring work complete, verify that public outputs do not contain:
 - backend-only environment variable names in frontend bundles;
 - generated indexes that point to private source files;
 - malformed public frontmatter: `title` must be a non-empty string, `publish` must be boolean, and optional `topics` must be an array of non-empty strings.
+
+Frontmatter contract:
+
+- parse source Markdown as real Obsidian-compatible YAML, including multiline lists and extra editorial properties;
+- normalize only fields listed in the matching collection schema into `content/`;
+- keep blocked/private fields fail-closed for publishable items;
+- treat `notes` as a collection and `topics` as a taxonomy from the `topics` field;
+- generate `/topics/[slug]/` from note metadata even when no optional `Topics/<topic>.md` term page exists;
+- write `src/generated/collections.json` together with `pages.json`, `topics.json`, `links.json` and `meta.json`.
 
 Security defaults:
 
