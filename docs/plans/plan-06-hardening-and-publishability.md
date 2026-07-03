@@ -25,30 +25,36 @@ Some hardening is already implemented: Vitest, integration fixtures, determinist
 - Dry-run import output.
 - Config/CLI option to fail on broken wikilinks.
 - GitHub Actions CI running `pnpm install --frozen-lockfile` and `pnpm run deploy:check`.
+- Initial public project process docs: `CONTRIBUTING.md`, `SECURITY.md` and `agent/checklists/release.md`.
 
 ## Remaining tasks
 
 ### 1. Licensing and contribution
 
-Add:
+Added:
 
 ```text
-LICENSE
 CONTRIBUTING.md
 SECURITY.md
 ```
 
-Decide license before release. If undecided, keep a TODO in release checklist rather than guessing.
+Still pending:
+
+```text
+LICENSE
+```
+
+Decide license before release. If undecided, keep a TODO in the release checklist rather than guessing.
 
 ### 2. Release checklist
 
-Create:
+Added:
 
 ```text
 agent/checklists/release.md
 ```
 
-Minimum checks:
+Minimum checks covered:
 
 - fresh clone commands pass;
 - CI green;
@@ -56,7 +62,8 @@ Minimum checks:
 - no private paths;
 - docs current;
 - demo screenshots updated if used;
-- version/tag decision made.
+- version/tag decision made;
+- license decision remains explicit and unresolved.
 
 ### 3. Stronger audit coverage
 
@@ -92,7 +99,7 @@ pnpm install --frozen-lockfile
 pnpm run deploy:check
 ```
 
-Plus the repository privacy scan documented in `AGENTS.md`, excluding generated dependencies/build artifacts. Keep that scan current with the forbidden-pattern contract in `rfs.config.json`; do not hardcode real secrets in fixtures or documentation.
+Plus the repository privacy scan documented in `agent/checklists/release.md`, excluding generated dependencies/build artifacts. Keep that scan current with the forbidden-pattern contract in `rfs.config.json`; do not hardcode real secrets in fixtures or documentation.
 
 ## Done when
 
