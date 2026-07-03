@@ -28,6 +28,18 @@
     "notes": "/notes",
     "topics": "/topics"
   },
+  "collections": [
+    {
+      "name": "notes",
+      "source": "Notes/**",
+      "route": "/notes",
+      "template": "note",
+      "schema": {
+        "required": ["title", "publish"],
+        "optional": ["topics"]
+      }
+    }
+  ],
   "privacy": {
     "forbiddenPatterns": [
       "/home/",

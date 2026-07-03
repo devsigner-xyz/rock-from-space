@@ -73,6 +73,72 @@ describe('content pipeline integration', () => {
     ).rejects.toThrow("Blocked frontmatter field 'private' in Notes/Blocked.md");
   });
 
+  it('exports a publishable note with valid collection frontmatter', async () => {
+    const outputRoot = path.join(await tempDir(), 'content');
+
+    const result = await exportPublicContent({
+      vaultRoot: path.join(fixturesRoot, 'frontmatter-vault'),
+      outputRoot,
+      allow: ['Notes/Valid Note.md'],
+      ignore: [],
+      publish,
+      blockedFrontmatterFields: ['private', 'secret', 'internal']
+    });
+
+    expect(result.exported).toEqual(['Notes/Valid Note.md']);
+    await expect(readFile(path.join(outputRoot, 'Notes/Valid Note.md'), 'utf8')).resolves.toContain('topics: ["Markdown"]');
+  });
+
+  it('fails export when a publishable note has no title', async () => {
+    const outputRoot = path.join(await tempDir(), 'content');
+
+    await expect(
+      exportPublicContent({
+        vaultRoot: path.join(fixturesRoot, 'frontmatter-vault'),
+        outputRoot,
+        allow: ['Notes/Missing Title.md'],
+        ignore: [],
+        publish,
+        blockedFrontmatterFields: ['private', 'secret', 'internal']
+      })
+    ).rejects.toThrow('Notes/Missing Title.md: title must be a non-empty string');
+  });
+
+  it('fails export when a publishable note has malformed topics', async () => {
+    const outputRoot = path.join(await tempDir(), 'content');
+
+    await expect(
+      exportPublicContent({
+        vaultRoot: path.join(fixturesRoot, 'frontmatter-vault'),
+        outputRoot,
+        allow: ['Notes/Malformed Topics.md'],
+        ignore: [],
+        publish,
+        blockedFrontmatterFields: ['private', 'secret', 'internal']
+      })
+    ).rejects.toThrow('Notes/Malformed Topics.md: topics must be an array of non-empty strings when provided');
+  });
+
+  it('audits invalid public frontmatter in exported content', async () => {
+    const contentRoot = path.join(fixturesRoot, 'frontmatter-vault');
+
+    const result = await auditPublicContent({
+      scanRoots: [contentRoot],
+      contentRoot,
+      cwd: fixturesRoot,
+      forbiddenPatterns: ['/home/', 'password', 'secret', 'api_key', 'token'],
+      blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      publish,
+      failOnBrokenWikilinks: true
+    });
+
+    expect(result.warnings).toEqual([]);
+    expect(result.failures).toContain('frontmatter-vault/Notes/Missing Title.md: title must be a non-empty string');
+    expect(result.failures).toContain(
+      'frontmatter-vault/Notes/Malformed Topics.md: topics must be an array of non-empty strings when provided'
+    );
+  });
+
   it('builds deterministic indexes from exported content', async () => {
     const outputRoot = path.join(await tempDir(), 'content');
     await exportPublicContent({

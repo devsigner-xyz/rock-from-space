@@ -4,6 +4,17 @@ import { z } from 'zod';
 
 export const projectRoot = process.cwd();
 
+const CollectionConfigSchema = z.object({
+  name: z.string().min(1),
+  source: z.string().min(1),
+  route: z.string().min(1),
+  template: z.string().min(1),
+  schema: z.object({
+    required: z.array(z.string()),
+    optional: z.array(z.string()).default([])
+  })
+}).strict();
+
 const ConfigSchema = z.object({
   site: z.object({
     title: z.string(),
@@ -27,6 +38,7 @@ const ConfigSchema = z.object({
     notes: z.string(),
     topics: z.string()
   }),
+  collections: z.array(CollectionConfigSchema).default([]),
   privacy: z.object({
     forbiddenPatterns: z.array(z.string()),
     blockedFrontmatterFields: z.array(z.string()).default([]),
@@ -46,6 +58,7 @@ const ConfigSchema = z.object({
 });
 
 export type RfsConfig = z.infer<typeof ConfigSchema>;
+export type CollectionConfig = z.infer<typeof CollectionConfigSchema>;
 
 export interface ParsedMarkdown {
   frontmatter: Record<string, unknown>;
@@ -196,6 +209,23 @@ export function getString(value: unknown, fallback: string): string {
 export function getStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0).map((item) => item.trim());
+}
+
+export function validatePublicFrontmatter(frontmatter: Record<string, unknown>, relativePath: string): string[] {
+  const failures: string[] = [];
+  if (typeof frontmatter['title'] !== 'string' || !frontmatter['title'].trim()) {
+    failures.push(`${relativePath}: title must be a non-empty string`);
+  }
+  if (typeof frontmatter['publish'] !== 'boolean') {
+    failures.push(`${relativePath}: publish must be a boolean`);
+  }
+  if (Object.hasOwn(frontmatter, 'topics')) {
+    const topics = frontmatter['topics'];
+    if (!Array.isArray(topics) || !topics.every((item) => typeof item === 'string' && item.trim().length > 0)) {
+      failures.push(`${relativePath}: topics must be an array of non-empty strings when provided`);
+    }
+  }
+  return failures;
 }
 
 export function extractWikilinks(body: string): string[] {

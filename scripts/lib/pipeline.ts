@@ -11,6 +11,7 @@ import {
   serializeMarkdown,
   slugify,
   toPosix,
+  validatePublicFrontmatter,
   writeJson
 } from './content.ts';
 import type { PublicPage, PublicTopic, RfsConfig } from './content.ts';
@@ -58,6 +59,11 @@ export async function exportPublicContent(options: ExportPublicContentOptions): 
       if (Object.hasOwn(parsed.frontmatter, blocked)) {
         throw new Error(`Blocked frontmatter field '${blocked}' in ${relative}`);
       }
+    }
+
+    const frontmatterFailures = validatePublicFrontmatter(parsed.frontmatter, relative);
+    if (frontmatterFailures.length > 0) {
+      throw new Error(`Invalid public frontmatter in ${relative}: ${frontmatterFailures.join('; ')}`);
     }
 
     const title = getString(parsed.frontmatter['title'], path.basename(relative, '.md'));
@@ -232,6 +238,7 @@ export async function auditPublicContent(options: AuditPublicContentOptions): Pr
             failures.push(`${relative}: blocked frontmatter field '${blocked}'`);
           }
         }
+        failures.push(...validatePublicFrontmatter(parsed.frontmatter, relative));
       }
     }
   }

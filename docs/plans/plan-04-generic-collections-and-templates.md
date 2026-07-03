@@ -29,7 +29,7 @@ Extend `rfs.config.json` with a future `collections` section:
       "template": "note",
       "schema": {
         "required": ["title", "publish"],
-        "optional": ["topics", "summary", "date"]
+        "optional": ["topics"]
       }
     }
   ]
@@ -53,19 +53,19 @@ Initial implementation can keep deriving `notes` and `topics` from the current c
 
 ### 1. Model collections
 
-- Add typed collection config parsing.
-- Keep `notes` as the default collection.
-- Treat `topics` as taxonomy-like collection or relation depending on final schema.
-- Ensure unknown collection config fails validation.
+- [x] Add typed collection config parsing for the initial `notes` collection.
+- [x] Keep `notes` as the default collection while preserving existing notes/topics behavior.
+- [ ] Treat `topics` as taxonomy-like collection or relation depending on final schema.
+- [x] Ensure unknown collection config fails validation.
 
 ### 2. Validate frontmatter
 
-- Define minimum common fields:
-  - `title` string;
+- [x] Define minimum common fields:
+  - `title` non-empty string;
   - `publish` boolean;
   - `topics` string array optional.
-- Add collection-specific optional/required fields.
-- Fail export or audit on malformed public content.
+- [ ] Add collection-specific optional/required fields beyond the initial `notes` schema.
+- [x] Fail export or audit on malformed public content.
 
 ### 3. Generate collection indexes
 

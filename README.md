@@ -109,6 +109,12 @@ pnpm run preview
 pnpm run preview:prod
 ```
 
+## Collection config
+
+`rfs.config.json` now includes an explicit `collections` contract while preserving the existing notes/topics routes. The initial collection is `notes` with `source: "Notes/**"`, `route: "/notes"`, `template: "note"` and a minimum public frontmatter schema: required `title` and `publish`, optional `topics`.
+
+Public Markdown validation fails before deploy when a publishable/exported note has an empty or missing `title`, non-boolean `publish`, or `topics` that is not an array of non-empty strings.
+
 ## CI
 
 GitHub Actions runs the production safety gate on pushes and pull requests to `main`:

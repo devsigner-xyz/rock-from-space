@@ -119,7 +119,8 @@ Before declaring work complete, verify that public outputs do not contain:
 - references to ignored vault folders;
 - accidental personal/project-specific copy;
 - backend-only environment variable names in frontend bundles;
-- generated indexes that point to private source files.
+- generated indexes that point to private source files;
+- malformed public frontmatter: `title` must be a non-empty string, `publish` must be boolean, and optional `topics` must be an array of non-empty strings.
 
 Security defaults:
 
