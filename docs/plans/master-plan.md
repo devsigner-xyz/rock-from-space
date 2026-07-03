@@ -150,6 +150,9 @@ Deliverables:
 - optional examples for Netlify/Vercel/Cloudflare Pages/Railway;
 - pre-deploy audit checklist.
 
+Detailed plan: `docs/plans/plan-03-production-cloud-publishing.md`.
+Deployment docs: `docs/deployment/static-hosting.md` and `docs/deployment/smoke-checklist.md`.
+
 ### Plan 04 — Generic collections and templates
 
 Goal: make the system useful beyond a simple notes/topics demo.
@@ -162,6 +165,8 @@ Deliverables:
 - collection landing pages;
 - richer backlink/topic graph.
 
+Detailed plan: `docs/plans/plan-04-generic-collections-and-templates.md`.
+
 ### Plan 05 — Agentic operations package
 
 Goal: make LLM-assisted operation portable and versioned.
@@ -173,6 +178,8 @@ Deliverables:
 - checklists;
 - examples of safe agent tasks;
 - optional future MCP design.
+
+Detailed plan: `docs/plans/plan-05-agentic-operations-package.md`.
 
 ### Plan 06 — Hardening and publishability
 
@@ -187,6 +194,22 @@ Deliverables:
 - license;
 - contribution guide;
 - release checklist.
+
+Detailed plan: `docs/plans/plan-06-hardening-and-publishability.md`.
+
+### Plan 07 — Local editorial control panel
+
+Goal: explore a local/file-backed operator UI for importing vault content, controlling publication state and running export/audit/build without turning Rock from Space into a hosted CMS.
+
+Deliverables:
+
+- local-only control panel concept;
+- note publication status model;
+- dry-run/diff safety model;
+- structured reports required before UI work;
+- no public admin route by default.
+
+Detailed plan: `docs/plans/plan-07-local-editorial-control-panel.md`.
 
 ## Success criteria for MVP
 

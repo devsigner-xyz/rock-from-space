@@ -141,6 +141,17 @@ After deploy, verify:
 - no local paths or private markers appear in HTML;
 - console has no critical errors.
 
+## Implementation status
+
+Current repository support:
+
+- `deploy:check` exists and is used by GitHub Actions CI.
+- `preview:prod` exists for local production-like preview on `127.0.0.1:4321`.
+- Generic static hosting documentation exists in `docs/deployment/static-hosting.md`.
+- Production smoke checklist exists in `docs/deployment/smoke-checklist.md`.
+
+Provider-specific deploy commands should still wait until a canonical first provider is selected.
+
 ## Done when
 
 - The docs make clear that Rock from Space is local-first editorially but cloud-ready operationally.

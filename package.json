@@ -14,7 +14,8 @@
     "build": "pnpm run content:export && pnpm run content:index && pnpm run audit:content && astro build",
     "check": "astro check && tsc --noEmit && pnpm run test",
     "deploy:check": "pnpm run content:export && pnpm run content:index && pnpm run audit:content && pnpm run build && pnpm run check",
-    "preview": "astro preview --host 0.0.0.0"
+    "preview": "astro preview --host 0.0.0.0",
+    "preview:prod": "astro preview --host 127.0.0.1 --port 4321"
   },
   "dependencies": {
     "@astrojs/check": "latest",

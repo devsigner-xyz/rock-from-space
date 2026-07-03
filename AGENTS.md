@@ -75,9 +75,9 @@ The repo should include portable agent materials:
 
 These files must not depend on strh's private environment.
 
-## Planned commands
+## Commands
 
-Use these once implemented:
+Use these project commands:
 
 ```bash
 pnpm run reset:demo
@@ -89,6 +89,7 @@ pnpm run test
 pnpm run build
 pnpm run check
 pnpm run deploy:check
+pnpm run preview:prod
 ```
 
 For UI/routing changes:

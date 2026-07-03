@@ -80,16 +80,22 @@ Local-first describes the editorial/source workflow. It does **not** mean local-
 
 ## Current status
 
-Planning scaffold. The initial architecture and implementation plans are in:
+Functional vertical slice with initial hardening is implemented. The project now has real Astro/Vite/TypeScript tooling, demo vault reset/import/export/index/audit/build commands, Vitest unit/integration tests and GitHub Actions CI.
+
+The implementation roadmap lives in:
 
 - `docs/plans/master-plan.md`
 - `docs/plans/plan-01-foundation-scaffold.md`
 - `docs/plans/plan-02-content-pipeline-vertical-slice.md`
 - `docs/plans/plan-03-production-cloud-publishing.md`
+- `docs/plans/plan-04-generic-collections-and-templates.md`
+- `docs/plans/plan-05-agentic-operations-package.md`
+- `docs/plans/plan-06-hardening-and-publishability.md`
+- `docs/plans/plan-07-local-editorial-control-panel.md`
 
-## Planned commands
+## Commands
 
-These commands are part of the intended implementation and may not exist yet:
+Current command contract:
 
 ```bash
 pnpm install
@@ -103,6 +109,7 @@ pnpm run build
 pnpm run check
 pnpm run deploy:check
 pnpm run preview
+pnpm run preview:prod
 ```
 
 ## CI
