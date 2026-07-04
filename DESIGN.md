@@ -1,58 +1,76 @@
 ---
 version: alpha
-name: Rock from Space Design System
-description: Neutral, content-first design tokens for Obsidian-compatible Markdown sites rendered with Astro.
+name: Rock from Space Editorial Design System
+description: Content-first editorial design tokens for Obsidian-compatible Markdown sites rendered with Astro, informed by a Dembrandt extraction from a Medium article.
 colors:
-  primary: "#4f46e5"
-  background: "#fbfaf7"
+  primary: "#1a8917"
+  background: "#ffffff"
   surface: "#ffffff"
-  surfaceMuted: "#f3f0ea"
-  text: "#191816"
-  textMuted: "#6f6a61"
-  border: "#e5dfd4"
-  accent: "#4f46e5"
-  accentHover: "#4338ca"
+  surfaceMuted: "#f7f7f4"
+  text: "#242424"
+  textStrong: "#000000"
+  textMuted: "#6b6b6b"
+  border: "#e6e6e6"
+  accent: "#1a8917"
+  accentHover: "#156d12"
+  selection: "#d2e7d1"
   danger: "#b42318"
 typography:
   body:
     fontFamily: system-ui
     fontSize: 1rem
     fontWeight: 400
-    lineHeight: 1.65
+    lineHeight: 1.5
   heading:
-    fontFamily: system-ui
-    fontSize: 2rem
+    fontFamily: Georgia
+    fontSize: 2.25rem
     fontWeight: 700
-    lineHeight: 1.15
+    lineHeight: 1.08
+  article:
+    fontFamily: Georgia
+    fontSize: 1.25rem
+    fontWeight: 400
+    lineHeight: 1.78
+  ui:
+    fontFamily: system-ui
+    fontSize: 0.875rem
+    fontWeight: 400
+    lineHeight: 1.43
   mono:
     fontFamily: ui-monospace
-    fontSize: 0.875rem
+    fontSize: 0.8125rem
     fontWeight: 400
     lineHeight: 1.5
 spacing:
   xs: 4px
-  sm: 8px
-  md: 16px
-  lg: 24px
-  xl: 32px
-  section: 64px
-rounded:
   sm: 6px
+  md: 10px
+  lg: 16px
+  xl: 32px
+  section: 60px
+rounded:
+  sm: 2px
   md: 12px
-  lg: 18px
+  lg: 20px
   pill: 999px
 components:
+  article:
+    backgroundColor: "{colors.background}"
+    textColor: "{colors.text}"
+    typography: article
+    rounded: sm
+    padding: "0px"
   card:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.text}"
     rounded: md
-    padding: "24px"
+    padding: "20px"
   buttonPrimary:
     backgroundColor: "{colors.primary}"
     textColor: "#ffffff"
-    typography: body
+    typography: ui
     rounded: pill
-    padding: "10px 16px"
+    padding: "6px 12px"
   badge:
     backgroundColor: "{colors.surfaceMuted}"
     textColor: "{colors.textMuted}"
@@ -61,46 +79,58 @@ components:
     padding: "4px 10px"
 ---
 
-# Rock from Space Design System
+# Rock from Space Editorial Design System
 
 ## Overview
 
-Rock from Space needs a neutral default design for static websites generated from Obsidian-compatible Markdown vaults.
+Rock from Space needs a neutral, content-first default design for static websites generated from Obsidian-compatible Markdown vaults.
 
-The default theme should be useful, readable and easy to fork. It must not impose a strong domain identity. Project-specific branding should be added by downstream users through tokens, CSS variables and templates.
+This design pass was informed by a Dembrandt extraction of the Medium article `https://medium.com/espanol/renovando-el-foco-de-medium-3cfd6a1d884c`, saved locally under `reports/dembrandt/`. The extraction showed a restrained editorial system: white background, near-black text, muted gray metadata, green accent, pill controls, compact UI typography, and a serif-led reading surface.
+
+The goal is not to copy Medium's brand or proprietary fonts. The goal is to preserve the useful editorial qualities in a generic, forkable Astro theme.
 
 ## Design principles
 
 - Content first: notes, topics, metadata and relationships are the interface.
-- Static first: HTML and CSS should carry the baseline experience without requiring client-side JavaScript.
+- Editorial calm: large readable headings, comfortable article measure, muted metadata and minimal chrome.
+- Static first: HTML and CSS should carry the baseline experience without client-side JavaScript.
 - Accessible by default: readable contrast, semantic landmarks, visible focus states and keyboard-friendly navigation.
-- Generic by default: no domain-specific images, icons or visual metaphors.
-- Cloud-ready output: generated pages should look complete when deployed as static files.
+- Generic by default: no domain-specific images, icons, logos or visual metaphors.
 - Agent-friendly conventions: tokens and component patterns should be explicit enough for coding agents to preserve consistency.
+
+## Source evidence
+
+Dembrandt observed these useful source patterns from the article:
+
+- Primary green: `#1a8917`, with darker hover-like variant `#156d12`.
+- Text neutrals: `#242424`, `#000000`, `#6b6b6b`, `#ffffff`.
+- Soft accent backgrounds: `#d2e7d1` and `#bbdbba`.
+- Typography split: serif editorial headings/body and compact sans UI/meta.
+- Compact spacing scale with a larger `60px` editorial separation.
+- Pill-like controls and small rounded UI elements.
+- Minimal motion: effectively instant color shifts only.
+
+Rock from Space adapts these as semantic tokens rather than using Medium-specific names or fonts.
 
 ## Runtime CSS token direction
 
-When implementation starts, mirror the frontmatter tokens into CSS custom properties:
+Mirror the frontmatter tokens into CSS custom properties:
 
 ```css
 :root {
-  --color-bg: #fbfaf7;
+  --color-bg: #ffffff;
   --color-surface: #ffffff;
-  --color-surface-muted: #f3f0ea;
-  --color-text: #191816;
-  --color-text-muted: #6f6a61;
-  --color-border: #e5dfd4;
-  --color-accent: #4f46e5;
-  --color-accent-hover: #4338ca;
-  --color-danger: #b42318;
+  --color-surface-muted: #f7f7f4;
+  --color-text: #242424;
+  --color-text-strong: #000000;
+  --color-text-muted: #6b6b6b;
+  --color-border: #e6e6e6;
+  --color-accent: #1a8917;
+  --color-accent-hover: #156d12;
+  --color-selection: #d2e7d1;
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: Georgia, Cambria, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --space-md: 16px;
-  --space-lg: 24px;
-  --space-xl: 32px;
 }
 ```
 
@@ -108,16 +138,17 @@ When implementation starts, mirror the frontmatter tokens into CSS custom proper
 
 Default routes should use simple, predictable layouts:
 
-- Homepage: project/site intro, counts, primary navigation.
-- Notes index: searchable/filterable later, plain list first.
+- Homepage: site intro, counts and primary navigation.
+- Notes index: plain scannable list/grid first, search later.
 - Note detail: title, metadata, body, topics, backlinks.
 - Topics index: topic list with note counts.
 - Topic detail: description plus related notes.
 
 Recommended widths:
 
-- Article content: 720–820px.
-- Index/grid pages: 1040–1180px.
+- Article content: 680–740px.
+- Article title measure: 10–14ch for strong editorial rhythm.
+- Index/grid pages: 1040–1120px.
 - Page padding: 20px mobile, 32px desktop.
 
 ## Components
@@ -125,20 +156,29 @@ Recommended widths:
 ### Header/navigation
 
 - Plain header with site title and primary links.
+- Keep the header secondary to the reading experience.
+- Use small sans-serif UI labels.
 - No JavaScript required for the initial version.
-- If mobile navigation becomes interactive later, keep it accessible and keyboard-operable.
+
+### Article page
+
+- Use serif typography for long-form Markdown body.
+- Use near-black text, not pure decorative color.
+- Metadata and topics should be visible but quiet.
+- Paragraph rhythm matters more than card decoration.
+- Figures should be full-width within the article measure, with muted captions.
 
 ### Cards
 
-Use cards for notes/topics only when they improve scanning. Avoid turning long-form content into noisy dashboards.
+Use cards for indexes only when they improve scanning. Cards should be quiet: white background, subtle border, no heavy shadow by default.
 
 ### Metadata and badges
 
 Metadata should be visible but secondary:
 
-- publish state should not appear on public pages unless useful;
-- topics can use badge-style links;
-- generated counts should link to their sections.
+- topics can use pill/badge-style links;
+- counts should link to their sections;
+- generated/publish state should not appear on public pages unless useful.
 
 ### Alerts/audit surfaces
 
@@ -148,7 +188,7 @@ If the UI ever exposes build/audit warnings, danger colors must be reserved for 
 
 Default motion should be minimal:
 
-- link/button hover states;
+- link and card hover color/border changes;
 - visible focus outlines;
 - no required animation;
 - respect `prefers-reduced-motion` for any future transitions.
@@ -172,3 +212,4 @@ When editing UI:
 - Keep public pages useful with JavaScript disabled.
 - Do not hide content problems in UI; fix or report them through the audit pipeline.
 - If adding visual dependencies such as fonts or icons, document them here and verify production build behavior.
+- Use Dembrandt extractions as evidence, not as a license to clone another site's brand.
