@@ -1,1 +1,9 @@
-Trabaja en `/home/strh/projects/rock-from-space`. Carga `AGENTS.md`, `README.md`, `DESIGN.md`, `docs/plans/master-plan.md`, `docs/plans/plan-07-obsidian-first-agentic-workflow.md` y `docs/plans/plan-10-agentic-skills-and-references.md`. Objetivo: ejecutar Plan 10 en slices pequeños: revisar/limpiar `agent/skills/rock-from-space-operator/references/`, crear skills repo-locales `rfs-obsidian-editor` y `rfs-privacy-auditor`, mantener `AGENTS.md` como contrato canónico y no introducir `.agents/` salvo documentación como opción futura. No deploy, no push, no tocar cambios ajenos. Verifica con `git diff --check`, `pnpm run test`, `pnpm run build`, `pnpm run check` y, si toca privacidad/reportes, `pnpm run content:doctor` + `pnpm run deploy:check`. Resume archivos, comandos reales, deuda restante y si queda listo para commit.
+Work in this repository. Load `AGENTS.md`, `README.md`, `DESIGN.md`, `docs/plans/master-plan.md`, `docs/plans/plan-07-obsidian-first-agentic-workflow.md` and `docs/plans/plan-10-agentic-skills-and-references.md`.
+
+Goal: continue Plan 10 in small slices. Keep `AGENTS.md` as the canonical contract, keep repo-local skills under `agent/skills/*/SKILL.md`, and do not introduce a required `.agents/` directory unless a future plan explicitly adds it as an optional compatibility layer.
+
+Rules: no deploy, no push, no commit unless explicitly asked. Do not touch unrelated working-tree changes. Keep docs and agent materials portable: no private local paths, personal vault assumptions or provider-specific runtime requirements.
+
+Verify with `git diff --check`, `pnpm run test`, `pnpm run build` and `pnpm run check`. If the slice touches privacy, reports, export/index behavior or public surfaces, also run `pnpm run content:doctor` and `pnpm run deploy:check`.
+
+Summarize changed files, real commands run, remaining debt and whether the result is ready for commit.

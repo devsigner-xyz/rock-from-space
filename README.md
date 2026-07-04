@@ -225,8 +225,11 @@ Frontend code must not receive backend-only secrets. If public environment varia
 
 Rock from Space includes portable agent materials:
 
-- `AGENTS.md` for coding agents;
-- `agent/skills/rock-from-space-operator/SKILL.md` for Hermes-compatible but generally readable operation rules;
+- `AGENTS.md` for the canonical coding-agent contract;
+- `agent/skills/rock-from-space-operator/SKILL.md` for the executive repo-local operator workflow;
+- `agent/skills/rfs-obsidian-editor/SKILL.md` for focused RFS vault editing;
+- `agent/skills/rfs-privacy-auditor/SKILL.md` for focused public-surface/privacy review;
+- `agent/skills/rock-from-space-operator/references/` for command, vault, privacy and agent-format details;
 - `agent/prompts/` for repeatable tasks such as publishing from a vault, reviewing public output, adding a collection, troubleshooting failed audits and preparing release notes;
 - `agent/checklists/` for pre-deploy, privacy audit, route smoke-test and release verification.
 

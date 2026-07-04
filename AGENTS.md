@@ -95,13 +95,16 @@ Avoid:
 
 The repo should include portable agent materials:
 
-- `agent/skills/rock-from-space-operator/SKILL.md` for Hermes-compatible skills that are also readable by other agents;
+- `agent/skills/rock-from-space-operator/SKILL.md` for the executive repo-local operator workflow;
+- `agent/skills/rfs-obsidian-editor/SKILL.md` for focused RFS vault editing;
+- `agent/skills/rfs-privacy-auditor/SKILL.md` for focused public-surface/privacy review;
+- `agent/skills/rock-from-space-operator/references/` for command, vault, privacy and agent-format details;
 - `agent/prompts/` for reusable task prompts covering publish/review/collection/audit/release work;
 - `agent/checklists/` for pre-deploy, privacy audit, route smoke-test and release workflows;
-- `docs/plans/` for implementation plans.
+- `docs/plans/` for implementation plans;
 - `docs/guides/` for human and agent-facing operating guides.
 
-These files must not depend on strh's private environment.
+These files must not depend on any private environment.
 
 Agentic operation is optional and portable. The repository must remain usable by humans and other automation without Hermes or any specific LLM provider.
 

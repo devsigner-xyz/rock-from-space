@@ -65,6 +65,24 @@ Respect these boundaries at all times:
 
 Do not introduce domain-specific taxonomies, personal project names, private source material, or hardcoded local paths.
 
+## Focused repo-local skills
+
+Use the focused skills when a task narrows beyond general operation:
+
+- `agent/skills/rfs-obsidian-editor/SKILL.md` — create, edit or repair RFS vault Markdown/frontmatter.
+- `agent/skills/rfs-privacy-auditor/SKILL.md` — inspect public surfaces, reports and build output for privacy leaks.
+
+This skill remains the executive workflow. `AGENTS.md` remains the canonical root contract.
+
+## References
+
+Long-lived details live under `references/`:
+
+- `references/command-contract.md`
+- `references/rfs-vault-contract.md`
+- `references/privacy-model.md`
+- `references/agent-package-format.md`
+
 ## Command contract
 
 Use the repository scripts rather than inventing commands:
@@ -203,6 +221,9 @@ When reviewing generated output:
 - `docs/guides/preparing-a-project-vault.md` — RFS vault preparation guide.
 - `docs/guides/obsidian-authoring-workflow.md` — Obsidian-first human/agent authoring workflow.
 - `docs/deployment/` — deployment/smoke guidance.
+- `agent/skills/rfs-obsidian-editor/SKILL.md` — focused source-vault editing workflow.
+- `agent/skills/rfs-privacy-auditor/SKILL.md` — focused public-surface/privacy review workflow.
+- `agent/skills/rock-from-space-operator/references/` — command, vault, privacy and agent-format details.
 - `agent/prompts/` — reusable task prompts.
 - `agent/checklists/` — pre-deploy, privacy, route smoke and release checklists.
 - `docs/plans/` — roadmap and phase scopes.
