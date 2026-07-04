@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/rock-from-space-icon.png" alt="Rock from Space icon" width="144" height="144">
+</p>
+
 # Rock from Space
 
 Rock from Space is an open-source toolkit for building production-ready Astro websites from an Obsidian-compatible Markdown vault.
@@ -58,7 +62,9 @@ Local-first describes the editorial/source workflow. It does **not** mean local-
 ├── rfs.config.json
 ├── content/                 # Public exported content. Treat as publishable.
 ├── examples/
-│   └── demo-vault/           # Disposable Obsidian-compatible demo vault.
+│   ├── demo-vault/           # Disposable Obsidian-compatible demo vault.
+│   ├── realistic-vault/      # Generic fictional multi-collection fixture.
+│   └── configs/              # Example configs for alternate fixtures.
 ├── scripts/                  # Planned TypeScript tooling scripts.
 ├── src/
 │   ├── generated/            # Generated JSON/TS indexes consumed by Astro.
@@ -88,6 +94,8 @@ The implementation roadmap lives in:
 - `docs/plans/plan-05-agentic-operations-package.md`
 - `docs/plans/plan-06-hardening-and-publishability.md`
 - `docs/plans/plan-07-local-editorial-control-panel.md`
+- `docs/plans/plan-08-multi-publication-vault-profiles.md`
+- `docs/plans/plan-09-real-vault-compatibility.md`
 
 ## Commands
 
@@ -108,6 +116,14 @@ pnpm run deploy:check
 pnpm run preview
 pnpm run preview:prod
 ```
+
+To test an alternate config without overwriting `rfs.config.json`, set `RFS_CONFIG_PATH` for the command:
+
+```bash
+RFS_CONFIG_PATH=examples/configs/realistic-vault.config.json pnpm run build
+```
+
+This still regenerates `content/`, `src/generated/` and `dist/` for that run, so run `pnpm run reset:demo && pnpm run build` afterwards when you want the default demo outputs restored.
 
 ## Quickstart
 
@@ -136,6 +152,7 @@ Current default:
 - `topics` is a taxonomy, not a primary collection: `field: "topics"`, `route: "/topics"`, optional term pages from `Topics/**`.
 - A topic route is generated from note metadata even when no `Topics/<topic>.md` file exists.
 - A matching `Topics/<topic>.md` file can enrich the generated topic page with body content.
+- Topic counts and topic pages include all public content pages, including configured collection pages, and links use each page's generated route.
 
 The exporter parses real Obsidian-compatible YAML frontmatter, including multiline arrays and extra editorial metadata, then normalizes only schema-approved public fields into `content/`. Extra properties are ignored unless they are blocked/private fields, which fail closed for publishable notes.
 

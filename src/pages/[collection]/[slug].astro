@@ -10,6 +10,10 @@ interface PublicPage {
   collection: string | null;
   route: string;
   topics: string[];
+  image: string | null;
+  imageAlt: string | null;
+  imageCaption: string | null;
+  metadata: Record<string, unknown>;
   bodyHtml: string;
   backlinks: string[];
 }
@@ -30,16 +34,35 @@ const pages = pagesRaw as PublicPage[];
 const backlinks = page.backlinks
   .map((slug) => pages.find((candidate) => candidate.slug === slug))
   .filter((candidate): candidate is PublicPage => Boolean(candidate));
+
+const people = (value: unknown) => Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : [];
+const speakers = people(page.metadata['ponentes'] ?? page.metadata['speakers']);
+const moderators = people(page.metadata['moderadores'] ?? page.metadata['moderators']);
+const edition = typeof page.metadata['edicion'] === 'string' ? page.metadata['edicion'] : page.metadata['edition'];
+const year = typeof page.metadata['anio'] === 'number' || typeof page.metadata['anio'] === 'string' ? page.metadata['anio'] : page.metadata['year'];
 ---
 <BaseLayout title={`${page.title} — Rock from Space Demo`}>
   <article class="article">
-    <p class="kicker">{page.collection ?? 'Collection'} page</p>
-    <h1>{page.title}</h1>
-    {page.topics.length > 0 && <p class="muted">{page.topics.join(', ')}</p>}
-    <div set:html={page.bodyHtml} />
+    <header class="article-header">
+      <p class="kicker">{page.collection ?? 'Collection'}</p>
+      <h1>{page.title}</h1>
+      {(edition || year || speakers.length > 0 || moderators.length > 0) && (
+        <p class="article-meta">
+          {[edition, year, speakers.length > 0 ? speakers.join(', ') : null, moderators.length > 0 ? `Moderated by ${moderators.join(', ')}` : null].filter(Boolean).join(' · ')}
+        </p>
+      )}
+      {page.topics.length > 0 && <p class="article-topics">{page.topics.join(', ')}</p>}
+    </header>
+    {page.image && (
+      <figure class="article-image">
+        <img src={page.image} alt={page.imageAlt ?? page.title} loading="lazy" decoding="async" />
+        {page.imageCaption && <figcaption>{page.imageCaption}</figcaption>}
+      </figure>
+    )}
+    <div class="article-body" set:html={page.bodyHtml} />
     {backlinks.length > 0 && (
-      <section>
-        <h2>Backlinks</h2>
+      <section class="article-related">
+        <h2>Related</h2>
         <ul>
           {backlinks.map((backlink) => <li><a href={backlink.route}>{backlink.title}</a></li>)}
         </ul>

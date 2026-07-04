@@ -202,6 +202,36 @@ Deliverables:
 
 Detailed plan: `docs/plans/plan-07-local-editorial-control-panel.md`.
 
+### Plan 08 — Multi-publication vault profiles
+
+Goal: support multiple independent public sites from either dedicated project vaults or separate project scopes inside one larger personal vault.
+
+Deliverables:
+
+- publication profile config model;
+- profile-aware export/index/audit/build commands;
+- support for dedicated-vault, folder, metadata, entrypoint and hybrid source modes;
+- isolated `content/`, generated indexes and `dist/` outputs per publication;
+- safety rules preventing cross-publication leakage;
+- docs for one-vault-many-websites and one-vault-per-project workflows.
+
+Detailed plan: `docs/plans/plan-08-multi-publication-vault-profiles.md`.
+
+### Plan 09 — Real vault compatibility
+
+Goal: turn the WatchOut pilot findings into generic support for realistic project vaults without coupling Rock from Space to WatchOut.
+
+Deliverables:
+
+- safer folder glob matching;
+- taxonomy counts across collection pages, not only notes;
+- topic pages that render related content using generated routes;
+- flexible publish gates for non-boolean frontmatter values;
+- realistic generic fixtures and/or local real-vault fixture policy;
+- documentation for preparing a project vault.
+
+Detailed plan: `docs/plans/plan-09-real-vault-compatibility.md`.
+
 ## Success criteria for MVP
 
 A fresh clone should support this flow:

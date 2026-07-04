@@ -2,8 +2,16 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import pagesRaw from '../../generated/pages.json';
 import topicsRaw from '../../generated/topics.json';
+import { relatedContentForTopic } from '../../lib/topic-related';
 
-interface PublicPage { title: string; slug: string; kind: 'note' | 'topic' | 'index'; topics: string[]; }
+interface PublicPage {
+  title: string;
+  slug: string;
+  kind: 'note' | 'topic' | 'index' | 'collection';
+  collection: string | null;
+  route: string;
+  topics: string[];
+}
 interface PublicTopic { title: string; slug: string; description: string; bodyHtml: string; noteSlugs: string[]; noteCount: number; }
 const pages = pagesRaw as PublicPage[];
 export function getStaticPaths() {
@@ -11,24 +19,22 @@ export function getStaticPaths() {
 }
 
 const { topic } = Astro.props as { topic: PublicTopic };
-const relatedNotes = topic.noteSlugs
-  .map((slug) => pages.find((page) => page.kind === 'note' && page.slug === slug))
-  .filter((page): page is PublicPage => Boolean(page));
+const relatedPages = relatedContentForTopic(topic, pages);
 ---
 <BaseLayout title={`${topic.title} — Rock from Space Demo`}>
   <article class="article">
     <p class="kicker">Topic</p>
     <h1>{topic.title}</h1>
-    {topic.bodyHtml ? <div set:html={topic.bodyHtml} /> : <p>{topic.description || 'Generated topic from public note metadata.'}</p>}
+    {topic.bodyHtml ? <div class="article-body" set:html={topic.bodyHtml} /> : <p class="article-body">{topic.description || 'Generated topic from public note metadata.'}</p>}
 
-    <section>
-      <h2>Related notes</h2>
-      {relatedNotes.length > 0 ? (
+    <section class="article-related">
+      <h2>Related</h2>
+      {relatedPages.length > 0 ? (
         <ul>
-          {relatedNotes.map((note) => <li><a href={`/notes/${note.slug}/`}>{note.title}</a></li>)}
+          {relatedPages.map((page) => <li><a href={page.route}>{page.title}</a></li>)}
         </ul>
       ) : (
-        <p>No related notes yet.</p>
+        <p>No related content yet.</p>
       )}
     </section>
   </article>

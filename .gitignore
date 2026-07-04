@@ -29,3 +29,9 @@ Thumbs.db
 
 # Local generated reports
 reports/
+
+# Local real-vault pilots; keep public examples generic.
+examples/watchout-vault/
+examples/watchout-2025-vault.local/
+examples/configs/watchout-vault.config.json
+examples/configs/*.local.config.json

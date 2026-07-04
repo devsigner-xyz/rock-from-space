@@ -1,36 +1,46 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import pagesRaw from '../../generated/pages.json';
-import topicsRaw from '../../generated/topics.json';
 
-interface PublicPage { title: string; slug: string; kind: 'note' | 'topic' | 'index'; topics: string[]; bodyHtml: string; backlinks: string[]; }
-interface PublicTopic { title: string; slug: string; }
+interface PublicPage {
+  title: string;
+  slug: string;
+  kind: 'note' | 'topic' | 'index';
+  topics: string[];
+  image: string | null;
+  imageAlt: string | null;
+  imageCaption: string | null;
+  bodyHtml: string;
+  backlinks: string[];
+}
 const pages = pagesRaw as PublicPage[];
-const topics = topicsRaw as PublicTopic[];
 export function getStaticPaths() {
   const staticNotes = (pagesRaw as PublicPage[]).filter((page) => page.kind === 'note');
   return staticNotes.map((note) => ({ params: { slug: note.slug }, props: { note } }));
 }
 
 const { note } = Astro.props as { note: PublicPage };
-const topicSlugs = new Map(topics.map((topic) => [topic.title, topic.slug]));
 const backlinks = note.backlinks
   .map((slug) => pages.find((page) => page.slug === slug))
   .filter((page): page is PublicPage => Boolean(page));
 ---
 <BaseLayout title={`${note.title} — Rock from Space Demo`}>
   <article class="article">
-    <p class="kicker">Note</p>
-    <h1>{note.title}</h1>
-    {note.topics.length > 0 && (
-      <ul class="badges">
-        {note.topics.map((topic) => <li><a class="badge" href={`/topics/${topicSlugs.get(topic) ?? topic.toLowerCase()}/`}>{topic}</a></li>)}
-      </ul>
+    <header class="article-header">
+      <p class="kicker">Note</p>
+      <h1>{note.title}</h1>
+      {note.topics.length > 0 && <p class="article-topics">{note.topics.join(', ')}</p>}
+    </header>
+    {note.image && (
+      <figure class="article-image">
+        <img src={note.image} alt={note.imageAlt ?? note.title} loading="lazy" decoding="async" />
+        {note.imageCaption && <figcaption>{note.imageCaption}</figcaption>}
+      </figure>
     )}
-    <div set:html={note.bodyHtml} />
+    <div class="article-body" set:html={note.bodyHtml} />
     {backlinks.length > 0 && (
-      <section>
-        <h2>Backlinks</h2>
+      <section class="article-related">
+        <h2>Related</h2>
         <ul>
           {backlinks.map((backlink) => <li><a href={`/notes/${backlink.slug}/`}>{backlink.title}</a></li>)}
         </ul>

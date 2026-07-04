@@ -167,7 +167,7 @@ describe('content pipeline integration', () => {
       source: 'Guides/**',
       route: '/guides',
       template: 'article',
-      schema: { required: ['title', 'publish'], optional: ['topics'] }
+      schema: { required: ['title', 'publish'], optional: ['topics', 'image', 'imageAlt', 'imageCaption'] }
     };
 
     await exportPublicContent({
@@ -191,7 +191,82 @@ describe('content pipeline integration', () => {
     expect(indexes.collections.find((collection) => collection.name === 'guides')).toEqual(
       expect.objectContaining({ route: '/guides', template: 'article', pageCount: 1, pages: [expect.objectContaining({ slug: 'first-guide' })] })
     );
-    expect(indexes.pages.find((page) => page.slug === 'first-guide')).toEqual(expect.objectContaining({ collection: 'guides', kind: 'collection', route: '/guides/first-guide/' }));
+    expect(indexes.pages.find((page) => page.slug === 'first-guide')).toEqual(
+      expect.objectContaining({
+        collection: 'guides',
+        kind: 'collection',
+        route: '/guides/first-guide/',
+        image: 'https://example.com/guide.jpg',
+        imageAlt: 'Guide illustration',
+        imageCaption: 'Example guide image caption.'
+      })
+    );
+    expect(indexes.topics.find((topic) => topic.title === 'Guides')).toEqual(
+      expect.objectContaining({ noteSlugs: ['first-guide'], noteCount: 1 })
+    );
+  });
+
+  it('exports and indexes the generic realistic vault fixture without project-specific coupling', async () => {
+    const outputRoot = path.join(await tempDir(), 'content');
+    const talksCollection = {
+      name: 'talks',
+      source: 'Talks/**',
+      route: '/talks',
+      template: 'talk',
+      schema: { required: ['title', 'publish'], optional: ['topics', 'speaker', 'edition'] }
+    };
+    const peopleCollection = {
+      name: 'people',
+      source: 'People/**',
+      route: '/people',
+      template: 'person',
+      schema: { required: ['title', 'publish'], optional: ['topics', 'role'] }
+    };
+    const editionsCollection = {
+      name: 'editions',
+      source: 'Editions/**',
+      route: '/editions',
+      template: 'edition',
+      schema: { required: ['title', 'publish'], optional: ['topics', 'year'] }
+    };
+    const collections = [notesCollection, talksCollection, peopleCollection, editionsCollection];
+
+    const exported = await exportPublicContent({
+      vaultRoot: path.resolve('examples/realistic-vault'),
+      outputRoot,
+      allow: ['index.md', 'Project.md', 'Sources.md', 'Drafts/**', 'Talks/**', 'People/**', 'Editions/**', 'Topics/**'],
+      ignore: ['Private/**', '**/Private/**'],
+      publish,
+      blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      collections,
+      taxonomies: [topicsTaxonomy]
+    });
+    const indexes = await buildContentIndexes({ contentRoot: outputRoot, routes, site, collections, taxonomies: [topicsTaxonomy] });
+
+    expect(exported.exported).toContain('Talks/Open Source Summit 2026.md');
+    expect(exported.exported).toContain('People/Maya Patel.md');
+    expect(exported.exported).toContain('Editions/Spring 2026.md');
+    expect(exported.exported).not.toContain('Topics.md');
+    expect(exported.skipped).toEqual(
+      expect.arrayContaining([
+        { path: 'Drafts/Unpublished Talk.md', reason: 'not-published' },
+        { path: 'Private/Sponsor Notes.md', reason: 'not-allowed' },
+        { path: 'Topics.md', reason: 'not-allowed' }
+      ])
+    );
+    expect(indexes.collections).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'talks', pageCount: 2 }),
+        expect.objectContaining({ name: 'people', pageCount: 2 }),
+        expect.objectContaining({ name: 'editions', pageCount: 1 })
+      ])
+    );
+    expect(indexes.pages.find((page) => page.slug === 'open-source-summit-2026')).toEqual(
+      expect.objectContaining({ collection: 'talks', kind: 'collection', route: '/talks/open-source-summit-2026/' })
+    );
+    expect(indexes.topics.find((topic) => topic.title === 'Privacy')).toEqual(
+      expect.objectContaining({ noteSlugs: ['maya-patel', 'open-source-summit-2026', 'project-overview'], noteCount: 3 })
+    );
   });
 
   it('fails export when a publishable note has no title', async () => {

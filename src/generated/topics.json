@@ -4,7 +4,7 @@
     "slug": "markdown",
     "path": "Topics/Markdown.md",
     "description": "Markdown is the portable source format for the editorial layer.",
-    "bodyHtml": "<h1>Markdown</h1>\n<p>Markdown is the portable source format for the editorial layer.</p>",
+    "bodyHtml": "<p>Markdown is the portable source format for the editorial layer.</p>",
     "noteSlugs": [
       "astro-static-rendering",
       "obsidian-compatible-publishing"
@@ -16,7 +16,7 @@
     "slug": "privacy",
     "path": "Topics/Privacy.md",
     "description": "Privacy-by-design means publishing from allowlisted content and failing closed during audits.",
-    "bodyHtml": "<h1>Privacy</h1>\n<p>Privacy-by-design means publishing from allowlisted content and failing closed during audits.</p>",
+    "bodyHtml": "<p>Privacy-by-design means publishing from allowlisted content and failing closed during audits.</p>",
     "noteSlugs": [
       "obsidian-compatible-publishing"
     ],
@@ -27,7 +27,7 @@
     "slug": "static-sites",
     "path": "Topics/Static Sites.md",
     "description": "Static outputs are easy to deploy to cloud hosting and CDNs.",
-    "bodyHtml": "<h1>Static Sites</h1>\n<p>Static outputs are easy to deploy to cloud hosting and CDNs.</p>",
+    "bodyHtml": "<p>Static outputs are easy to deploy to cloud hosting and CDNs.</p>",
     "noteSlugs": [
       "astro-static-rendering"
     ],

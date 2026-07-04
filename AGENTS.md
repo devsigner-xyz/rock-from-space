@@ -17,6 +17,8 @@ The system must remain agnostic:
 - no assumptions about a specific LLM provider or agent runtime;
 - no runtime dependency on the Obsidian app.
 
+Rock from Space project surfaces must use English naming by default: config keys, example config values, collection/taxonomy names, routes, labels, docs, plans, tests and agent materials. Editorial vault content may be written in any language; do not rewrite user-authored vault prose just to make it English. When a non-English real vault exposes a generic product gap, translate the durable Rock from Space example to an English, fictional equivalent before committing it.
+
 ## Source boundaries
 
 Expected boundaries:
@@ -93,6 +95,14 @@ pnpm run check
 pnpm run deploy:check
 pnpm run preview:prod
 ```
+
+To test a fixture or alternate vault config without replacing `rfs.config.json`, scope the command with `RFS_CONFIG_PATH`, for example:
+
+```bash
+RFS_CONFIG_PATH=examples/configs/realistic-vault.config.json pnpm run build
+```
+
+This is non-destructive to the config file, but it still regenerates `content/`, `src/generated/` and `dist/` for that run. Restore default demo outputs with `pnpm run reset:demo && pnpm run build` when needed.
 
 For UI/routing changes:
 

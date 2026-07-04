@@ -1,0 +1,118 @@
+{
+  "site": {
+    "title": "Rock from Space Realistic Fixture",
+    "description": "A generic fictional multi-collection vault fixture for Rock from Space.",
+    "language": "en",
+    "url": "https://example.com",
+    "base": "/"
+  },
+  "vault": {
+    "path": "examples/realistic-vault",
+    "mode": "fixture",
+    "allow": [
+      "index.md",
+      "Project.md",
+      "Sources.md",
+      "Drafts/**",
+      "Talks/**",
+      "People/**",
+      "Editions/**",
+      "Topics/**"
+    ],
+    "ignore": [
+      ".obsidian/**",
+      "Private/**",
+      "**/Private/**"
+    ]
+  },
+  "publish": {
+    "requireField": "publish",
+    "requireValue": true,
+    "output": "content"
+  },
+  "routes": {
+    "notes": "/notes",
+    "topics": "/topics"
+  },
+  "collections": [
+    {
+      "name": "notes",
+      "source": "Project.md",
+      "route": "/notes",
+      "template": "note",
+      "schema": {
+        "required": ["title", "publish"],
+        "optional": ["topics"]
+      }
+    },
+    {
+      "name": "talks",
+      "source": "Talks/**",
+      "route": "/talks",
+      "template": "talk",
+      "schema": {
+        "required": ["title", "publish"],
+        "optional": ["topics", "speaker", "edition", "image", "imageAlt", "imageCaption"]
+      }
+    },
+    {
+      "name": "people",
+      "source": "People/**",
+      "route": "/people",
+      "template": "person",
+      "schema": {
+        "required": ["title", "publish"],
+        "optional": ["topics", "role"]
+      }
+    },
+    {
+      "name": "editions",
+      "source": "Editions/**",
+      "route": "/editions",
+      "template": "edition",
+      "schema": {
+        "required": ["title", "publish"],
+        "optional": ["topics", "year"]
+      }
+    }
+  ],
+  "taxonomies": [
+    {
+      "name": "topics",
+      "field": "topics",
+      "route": "/topics",
+      "source": "Topics/**",
+      "template": "topic"
+    }
+  ],
+  "privacy": {
+    "forbiddenPatterns": [
+      "/home/",
+      "password",
+      "secret",
+      "api_key",
+      "token"
+    ],
+    "blockedFrontmatterFields": [
+      "private",
+      "secret",
+      "internal"
+    ],
+    "allowedEmbedDomains": []
+  },
+  "deploy": {
+    "target": "static",
+    "output": "dist",
+    "predeploy": [
+      "content:export",
+      "content:index",
+      "audit:content",
+      "build"
+    ]
+  },
+  "agent": {
+    "skillsPath": "agent/skills",
+    "promptsPath": "agent/prompts",
+    "checklistsPath": "agent/checklists"
+  }
+}

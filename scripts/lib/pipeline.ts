@@ -11,6 +11,7 @@ import {
   parseMarkdown,
   renderMarkdownToSafeHtml,
   serializeMarkdown,
+  stripLeadingTitleHeading,
   slugify,
   toPosix,
   writeJson
@@ -145,6 +146,12 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
     const slug = kind === 'index' ? 'home' : slugify(title);
     const route = routeForPage(kind, slug, collection, options.routes, topicTaxonomy);
     const topics = getStringArray(parsed.frontmatter[topicTaxonomy?.field ?? 'topics']);
+    const image = getString(parsed.frontmatter['image'], '');
+    const imageAlt = getString(parsed.frontmatter['imageAlt'], title);
+    const imageCaption = getString(parsed.frontmatter['imageCaption'], '');
+    const metadata = Object.fromEntries(
+      Object.entries(parsed.frontmatter).filter(([field]) => !['title', 'publish', 'topics', topicTaxonomy?.field, 'image', 'imageAlt', 'imageCaption'].includes(field))
+    );
     const links = extractWikilinks(parsed.body);
     basePages.push({
       title,
@@ -155,6 +162,10 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
       template: collection?.template ?? (kind === 'topic' ? topicTaxonomy?.template ?? 'taxonomy' : null),
       route,
       topics,
+      image: image || null,
+      imageAlt: image ? imageAlt : null,
+      imageCaption: imageCaption || null,
+      metadata,
       body: parsed.body,
       links
     });
@@ -167,11 +178,12 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
       .filter((candidate) => candidate.links.some((link) => titleToSlug.get(link) === page.slug))
       .map((candidate) => candidate.slug)
       .sort();
-    const bodyHtml = renderMarkdownToSafeHtml(page.body, (label) => titleToRoute.get(label) ?? null);
+    const bodyHtml = renderMarkdownToSafeHtml(stripLeadingTitleHeading(page.body, page.title), (label) => titleToRoute.get(label) ?? null);
     return { ...page, backlinks, bodyHtml };
   });
 
   const notePages = pages.filter((page) => page.collection === 'notes' || page.kind === 'note');
+  const topicSourcePages = pages.filter((page) => page.kind !== 'index' && page.kind !== 'topic');
   const topicPages = pages.filter((page) => page.kind === 'topic');
   const topicsByTitle = new Map<string, PublicTopic>();
 
@@ -187,8 +199,8 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
     });
   }
 
-  for (const note of notePages) {
-    for (const topicTitle of note.topics) {
+  for (const page of topicSourcePages) {
+    for (const topicTitle of page.topics) {
       const existing = topicsByTitle.get(topicTitle) ?? {
         title: topicTitle,
         slug: slugify(topicTitle),
@@ -198,7 +210,7 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
         noteSlugs: [],
         noteCount: 0
       };
-      existing.noteSlugs.push(note.slug);
+      existing.noteSlugs.push(page.slug);
       existing.noteSlugs = Array.from(new Set(existing.noteSlugs)).sort();
       existing.noteCount = existing.noteSlugs.length;
       topicsByTitle.set(topicTitle, existing);

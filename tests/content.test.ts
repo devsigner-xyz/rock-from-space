@@ -5,6 +5,7 @@ import {
   parseMarkdown,
   renderMarkdownToSafeHtml,
   serializeMarkdown,
+  stripLeadingTitleHeading,
   slugify
 } from '../scripts/lib/content.ts';
 
@@ -46,10 +47,28 @@ describe('content utilities', () => {
     expect(html).not.toContain('<script>');
   });
 
+  it('autolinks external URLs without changing internal wikilink behavior', () => {
+    const html = renderMarkdownToSafeHtml('Video: https://youtu.be/example. See [[Astro|Astro guide]].', (label) =>
+      label === 'Astro' ? '/topics/astro/' : null
+    );
+
+    expect(html).toContain('<a href="https://youtu.be/example" target="_blank" rel="noopener noreferrer">https://youtu.be/example</a>.');
+    expect(html).toContain('<a href="/topics/astro/">Astro guide</a>');
+    expect(html).not.toContain('href="/topics/astro/" target="_blank"');
+  });
+
+  it('strips only a leading h1 that duplicates frontmatter title', () => {
+    expect(stripLeadingTitleHeading('# Public Title\n\nBody', 'Public Title')).toBe('Body');
+    expect(stripLeadingTitleHeading('# Editorial Heading\n\nBody', 'Public Title')).toBe('# Editorial Heading\n\nBody');
+    expect(stripLeadingTitleHeading('Intro\n\n# Public Title', 'Public Title')).toBe('Intro\n\n# Public Title');
+  });
+
   it('checks allow and ignore patterns', () => {
     expect(isAllowed('Notes/Public.md', ['Notes/**'], ['**/Private/**'])).toBe(true);
     expect(isAllowed('Notes/Private/Secret.md', ['Notes/**'], ['**/Private/**'])).toBe(false);
     expect(isAllowed('.obsidian/workspace.json', ['Notes/**'], ['.obsidian/**'])).toBe(false);
     expect(isAllowed('Drafts/Idea.md', ['Notes/**'], [])).toBe(false);
+    expect(isAllowed('Topics/Bitcoin.md', ['Topics/**'], [])).toBe(true);
+    expect(isAllowed('Topics.md', ['Topics/**'], [])).toBe(false);
   });
 });

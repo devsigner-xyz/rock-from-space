@@ -87,6 +87,10 @@ export interface PublicPage {
   template: string | null;
   route: string;
   topics: string[];
+  image: string | null;
+  imageAlt: string | null;
+  imageCaption: string | null;
+  metadata: Record<string, unknown>;
   body: string;
   bodyHtml: string;
   links: string[];
@@ -121,8 +125,9 @@ export interface PublicCollectionIndex {
   pageCount: number;
 }
 
-export async function readConfig(): Promise<RfsConfig> {
-  const raw = await readFile(path.join(projectRoot, 'rfs.config.json'), 'utf8');
+export async function readConfig(configPath = process.env['RFS_CONFIG_PATH'] ?? 'rfs.config.json'): Promise<RfsConfig> {
+  const absoluteConfigPath = resolveInsideRoot(configPath);
+  const raw = await readFile(absoluteConfigPath, 'utf8');
   const config = ConfigSchema.parse(JSON.parse(raw));
   assertUniqueNames(config.collections.map((collection) => collection.name), 'collection');
   assertUniqueNames(config.taxonomies.map((taxonomy) => taxonomy.name), 'taxonomy');
@@ -192,7 +197,10 @@ function matchesPattern(value: string, pattern: string): boolean {
     const segment = pattern.slice(3, -3);
     return value === segment || value.startsWith(`${segment}/`) || value.includes(`/${segment}/`);
   }
-  if (pattern.endsWith('/**')) return value.startsWith(pattern.slice(0, -3));
+  if (pattern.endsWith('/**')) {
+    const directory = pattern.slice(0, -3);
+    return value === directory || value.startsWith(`${directory}/`);
+  }
   if (pattern.startsWith('**/')) return value.endsWith(pattern.slice(3));
   return value === pattern;
 }
@@ -335,13 +343,37 @@ export function renderMarkdownToSafeHtml(markdown: string, linkResolver?: (label
   return paragraphs.join('\n');
 }
 
+export function stripLeadingTitleHeading(markdown: string, title: string): string {
+  const lines = markdown.split('\n');
+  const firstContentIndex = lines.findIndex((line) => line.trim().length > 0);
+  if (firstContentIndex === -1) return markdown;
+
+  const firstContent = lines[firstContentIndex]?.trim() ?? '';
+  if (!firstContent.startsWith('# ')) return markdown;
+
+  const heading = firstContent.slice(2).trim();
+  if (heading !== title.trim()) return markdown;
+
+  return [...lines.slice(0, firstContentIndex), ...lines.slice(firstContentIndex + 1)].join('\n').trim();
+}
+
 function inlineMarkdown(value: string, linkResolver?: (label: string) => string | null): string {
   const escaped = escapeHtml(value);
-  return escaped.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_match: string, rawLabel: string, rawAlias: string | undefined) => {
+  const withWikilinks = escaped.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_match: string, rawLabel: string, rawAlias: string | undefined) => {
     const label = rawLabel.trim();
     const alias = rawAlias?.trim() ?? label;
     const href = linkResolver?.(label);
     return href ? `<a href="${escapeAttribute(href)}">${escapeHtml(alias)}</a>` : `<span class="unresolved-link">${escapeHtml(alias)}</span>`;
+  });
+  return linkExternalUrls(withWikilinks);
+}
+
+function linkExternalUrls(value: string): string {
+  return value.replace(/(^|[\s(>])((?:https?:\/\/)[^\s<]+)/g, (_match: string, prefix: string, rawUrl: string) => {
+    const trailing = rawUrl.match(/[.,;:!?)]*$/)?.[0] ?? '';
+    const url = rawUrl.slice(0, rawUrl.length - trailing.length);
+    if (!url) return `${prefix}${rawUrl}`;
+    return `${prefix}<a href="${escapeAttribute(url)}" target="_blank" rel="noopener noreferrer">${url}</a>${trailing}`;
   });
 }
 
