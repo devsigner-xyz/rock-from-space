@@ -2,13 +2,13 @@
 
 ## Product definition
 
-Rock from Space is an open-source toolkit for building static Astro websites from an Obsidian-compatible editorial vault, with a one-way publishing workflow and portable agent operations.
+Rock from Space is an open-source toolkit for building static Astro websites from a Rock from Space structured Obsidian-compatible editorial vault, with a one-way publishing workflow and portable agent operations.
 
 It should let a user:
 
 1. clone the repo;
 2. run or edit the disposable demo vault;
-3. edit/curate in Obsidian or any Markdown editor;
+3. edit/curate in Obsidian or any Markdown editor using the RFS vault structure;
 4. export only public content into `content/`;
 5. generate Astro indexes;
 6. audit privacy and content integrity;
@@ -188,23 +188,26 @@ Deliverables:
 
 Detailed plan: `docs/plans/plan-06-hardening-and-publishability.md`.
 
-### Plan 07 — Local editorial control panel
+### Plan 07 — Obsidian-first agentic workflow
 
-Goal: explore a local/file-backed operator UI for controlling publication state and running export/audit/build without turning Rock from Space into a hosted CMS.
+Goal: make Rock from Space excellent as a strict Obsidian-first publishing system operated by humans and LLM agents, without building a separate admin panel or supporting arbitrary vault structures.
 
 Deliverables:
 
-- local-only control panel concept;
-- note publication status model;
-- dry-run/diff safety model;
-- structured reports available for operator workflows before UI work;
-- no public admin route by default.
+- required RFS vault structure documented as product contract;
+- repo-local skills/prompts/checklists for safe LLM operation;
+- Obsidian authoring workflow guide;
+- copyable Obsidian templates for RFS notes/topics/pages;
+- Markdown doctor report readable by humans and agents;
+- future frontmatter/template metadata documented before rendering templates.
 
-Detailed plan: `docs/plans/plan-07-local-editorial-control-panel.md`.
+Detailed plan: `docs/plans/plan-07-obsidian-first-agentic-workflow.md`.
 
-### Plan 08 — Multi-publication vault profiles
+### Plan 08 — Multi-publication vault profiles (deferred)
 
 Goal: support multiple independent public sites from either dedicated project vaults or separate project scopes inside one larger personal vault.
+
+Status: deferred. The current product focus is one RFS-structured vault operated through Obsidian and agents. Do not implement Plan 08 until the Obsidian-first contract, docs, skills and templates are stable.
 
 Deliverables:
 
@@ -227,10 +230,25 @@ Deliverables:
 - taxonomy counts across collection pages, not only notes;
 - topic pages that render related content using generated routes;
 - flexible publish gates for non-boolean frontmatter values;
+- `content:doctor` / `content:status` diagnostics backed by export/audit reports;
+- generated taxonomy metadata for field/route/label with documented route limits;
 - realistic generic fixtures and/or local real-vault fixture policy;
 - documentation for preparing a project vault.
 
 Detailed plan: `docs/plans/plan-09-real-vault-compatibility.md`.
+
+### Plan 10 — Agentic skills and references
+
+Goal: make the repo-local agent package more modular and portable without creating autonomous runtime agents.
+
+Deliverables:
+
+- clean/rewrite `rock-from-space-operator` references around the Obsidian-first contract;
+- create focused repo-local skills for RFS vault editing and privacy auditing;
+- keep `AGENTS.md` as the canonical root contract;
+- document why Markdown `agent/skills/*/SKILL.md` is the current portable format and `.agents/` is deferred.
+
+Detailed plan: `docs/plans/plan-10-agentic-skills-and-references.md`.
 
 ## Success criteria for MVP
 

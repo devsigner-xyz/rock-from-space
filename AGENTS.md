@@ -4,11 +4,11 @@ Operational guide for AI agents working on Rock from Space.
 
 ## Project mission
 
-Rock from Space is a generic Obsidian-compatible editorial pipeline plus Astro static rendering toolkit.
+Rock from Space is an Obsidian-first editorial pipeline plus Astro static rendering toolkit for a Rock from Space structured Markdown vault.
 
-It should let users write and curate content in a Markdown/Obsidian editorial vault, export only public content, generate typed indexes, render an Astro site and deploy the resulting `dist/` artifact to production cloud hosting.
+It should let users and LLM agents write and curate content in the RFS vault structure, export only public content, generate typed indexes, render an Astro site and deploy the resulting `dist/` artifact to production cloud hosting.
 
-The system must remain agnostic:
+The public repo must remain content/domain agnostic:
 
 - no references to personal vaults;
 - no hardcoded local user paths;
@@ -17,13 +17,15 @@ The system must remain agnostic:
 - no assumptions about a specific LLM provider or agent runtime;
 - no runtime dependency on the Obsidian app.
 
+The vault contract is intentionally opinionated. Do not try to support every possible Obsidian layout as a core feature. If someone wants to use Rock from Space, they should adopt the RFS vault structure and frontmatter conventions first; migration helpers can come later.
+
 Rock from Space project surfaces must use English naming by default: config keys, example config values, collection/taxonomy names, routes, labels, docs, plans, tests and agent materials. Editorial vault content may be written in any language; do not rewrite user-authored vault prose just to make it English. When a non-English real vault exposes a generic product gap, translate the durable Rock from Space example to an English, fictional equivalent before committing it.
 
 ## Source boundaries
 
 Expected boundaries:
 
-1. `examples/demo-vault/` — disposable Obsidian-compatible demo vault.
+1. `examples/demo-vault/` — disposable RFS-structured Obsidian-compatible demo vault.
 2. Optional external vault — configured by `rfs.config.json`, never assumed.
 3. `content/` — public export input for Astro. Treat everything here as publishable.
 4. `src/generated/` — generated indexes/contracts consumed by Astro.
@@ -32,6 +34,30 @@ Expected boundaries:
 Astro must not read a private vault directly. It should build from `content/` and `src/generated/`.
 
 Local-first describes the editorial/source workflow, not the hosting model. The generated site must be suitable for production cloud hosting or CDN deployment.
+
+## Required RFS vault structure
+
+Default vault shape:
+
+```text
+index.md
+Notes/
+Topics/
+Pages/
+Assets/
+Drafts/
+Private/
+```
+
+- `index.md` is the public home/source page when publishable.
+- `Notes/` is the default publishable note collection.
+- `Topics/` contains optional taxonomy term pages.
+- `Pages/` is reserved for future stable pages such as about/now/landing pages.
+- `Assets/` is reserved for public assets once asset handling is implemented.
+- `Drafts/` is non-public by default.
+- `Private/` must never be public.
+
+Agents should edit this structure directly through Markdown/frontmatter, then verify with `pnpm run content:doctor`, build/check commands and privacy scans. Do not create an admin panel, hosted CMS, public admin route or arbitrary vault-shape adapter unless a later plan explicitly reintroduces it.
 
 ## Architecture principles
 
@@ -73,10 +99,13 @@ The repo should include portable agent materials:
 - `agent/prompts/` for reusable task prompts covering publish/review/collection/audit/release work;
 - `agent/checklists/` for pre-deploy, privacy audit, route smoke-test and release workflows;
 - `docs/plans/` for implementation plans.
+- `docs/guides/` for human and agent-facing operating guides.
 
 These files must not depend on strh's private environment.
 
 Agentic operation is optional and portable. The repository must remain usable by humans and other automation without Hermes or any specific LLM provider.
+
+Agentic operation is a product primitive: repo-local skills, prompts, checklists, `AGENTS.md` and `DESIGN.md` should be good enough for an LLM to safely edit the RFS vault, diagnose publication state and verify public output.
 
 ## Commands
 
@@ -89,6 +118,8 @@ pnpm run content:index
 pnpm run audit:content
 pnpm run content:export -- --report
 pnpm run audit:content -- --report
+pnpm run content:doctor
+pnpm run content:status
 pnpm run test
 pnpm run build
 pnpm run check
@@ -142,9 +173,11 @@ Frontmatter contract:
 - parse source Markdown as real Obsidian-compatible YAML, including multiline lists and extra editorial properties;
 - normalize only fields listed in the matching collection schema into `content/`;
 - keep blocked/private fields fail-closed for publishable items;
-- treat `notes` as a collection and `topics` as a taxonomy from the `topics` field;
-- generate `/topics/[slug]/` from note metadata even when no optional `Topics/<topic>.md` term page exists;
-- write `src/generated/collections.json` together with `pages.json`, `topics.json`, `links.json` and `meta.json`.
+- treat `notes` as a collection and `topics` as the current primary taxonomy from the configured taxonomy field;
+- allow `publish.requireValue` to be a boolean, string or number, while normalizing exported public Markdown to `publish: true`;
+- generate `/topics/[slug]/` from primary taxonomy metadata even when no optional `Topics/<topic>.md` term page exists;
+- write `src/generated/collections.json` and `src/generated/taxonomies.json` together with `pages.json`, `topics.json`, `links.json` and `meta.json`;
+- document that full arbitrary taxonomy route folders remain later routing work.
 
 Security defaults:
 

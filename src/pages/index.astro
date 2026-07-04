@@ -2,14 +2,17 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import pagesRaw from '../generated/pages.json';
 import topicsRaw from '../generated/topics.json';
+import taxonomiesRaw from '../generated/taxonomies.json';
 import metaRaw from '../generated/meta.json';
 
-interface PageIndexItem { title: string; slug: string; kind: 'note' | 'topic' | 'index'; topics: string[]; }
+interface PageIndexItem { title: string; slug: string; kind: 'note' | 'topic' | 'index' | 'collection'; route: string; topics: string[]; }
 interface TopicIndexItem { title: string; slug: string; noteCount: number; }
+interface TaxonomyIndexItem { name: string; route: string; label: string; }
 interface Meta { noteCount: number; topicCount: number; pageCount: number; site: { title: string; description: string; }; }
 
 const pages = pagesRaw as PageIndexItem[];
 const topics = topicsRaw as TopicIndexItem[];
+const primaryTaxonomy = (taxonomiesRaw as TaxonomyIndexItem[])[0] ?? { name: 'topics', route: '/topics', label: 'Topics' };
 const meta = metaRaw as Meta;
 const featuredNotes = pages.filter((page) => page.kind === 'note').slice(0, 3);
 ---
@@ -26,9 +29,9 @@ const featuredNotes = pages.filter((page) => page.kind === 'note').slice(0, 3);
       <strong>{meta.noteCount} notes</strong>
       <p>Public notes exported from the demo vault.</p>
     </a>
-    <a class="card" href="/topics/">
-      <strong>{meta.topicCount} topics</strong>
-      <p>Generated topic index with related notes.</p>
+    <a class="card" href={`${primaryTaxonomy.route}/`}>
+      <strong>{meta.topicCount} {primaryTaxonomy.label.toLowerCase()}</strong>
+      <p>Generated taxonomy index with related content.</p>
     </a>
     <div class="card">
       <strong>{meta.pageCount} pages</strong>
@@ -40,7 +43,7 @@ const featuredNotes = pages.filter((page) => page.kind === 'note').slice(0, 3);
     <h2>Featured notes</h2>
     <div class="grid">
       {featuredNotes.map((note) => (
-        <a class="card" href={`/notes/${note.slug}/`}>
+        <a class="card" href={note.route}>
           <strong>{note.title}</strong>
           <p>{note.topics.join(', ') || 'No topics'}</p>
         </a>
@@ -49,9 +52,9 @@ const featuredNotes = pages.filter((page) => page.kind === 'note').slice(0, 3);
   </section>
 
   <section>
-    <h2>Topics</h2>
+    <h2>{primaryTaxonomy.label}</h2>
     <ul class="badges">
-      {topics.map((topic) => <li><a class="badge" href={`/topics/${topic.slug}/`}>{topic.title} ({topic.noteCount})</a></li>)}
+      {topics.map((topic) => <li><a class="badge" href={`${primaryTaxonomy.route}/${topic.slug}/`}>{topic.title} ({topic.noteCount})</a></li>)}
     </ul>
   </section>
 </BaseLayout>

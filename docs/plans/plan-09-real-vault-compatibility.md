@@ -8,6 +8,8 @@
 
 **Tech Stack:** TypeScript, Astro static output, Zod config validation, existing export/index/audit pipeline, Vitest integration fixtures.
 
+**Current status (2026-07-04):** Plan 09 is functionally complete for the generic compatibility slice. Implemented pieces include safe folder glob matching, taxonomy counts across collection pages, related collection content on topic pages, boolean/string/number publish gates with `publish: true` public normalization, a generic realistic fixture, `content:doctor`/`content:status`, generated taxonomy metadata and the project-vault preparation guide. Remaining taxonomy limitation is explicit: Astro currently renders one primary taxonomy through `/topics/` route folders; fully arbitrary taxonomy route folders belong to later routing work.
+
 ---
 
 ## Context from the WatchOut pilot

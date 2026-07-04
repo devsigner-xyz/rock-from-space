@@ -18,6 +18,7 @@
         "title": "Astro static rendering",
         "slug": "astro-static-rendering",
         "path": "Notes/Astro static rendering.md",
+        "route": "/notes/astro-static-rendering/",
         "topics": [
           "Markdown",
           "Static Sites"
@@ -27,6 +28,7 @@
         "title": "Obsidian compatible publishing",
         "slug": "obsidian-compatible-publishing",
         "path": "Notes/Obsidian compatible publishing.md",
+        "route": "/notes/obsidian-compatible-publishing/",
         "topics": [
           "Markdown",
           "Privacy"

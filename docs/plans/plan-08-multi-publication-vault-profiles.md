@@ -2,6 +2,8 @@
 
 > **For Hermes:** Use subagent-driven-development skill to implement this plan task-by-task.
 
+**Status:** Deferred. Current product direction is one RFS-structured Obsidian vault operated through Obsidian and LLM agents. Do not implement this plan until Plan 07's Obsidian-first contract, docs, skills and templates are stable.
+
 **Goal:** Let Rock from Space publish multiple independent public sites from either dedicated project vaults or separate project scopes inside one larger personal vault.
 
 **Architecture:** Introduce first-class publication profiles. A publication profile defines its source vault, selection scope, publication gate, site metadata, generated outputs and safety audit boundaries. The public Astro site must continue to read only exported `content/` and generated indexes, never directly from a private vault.

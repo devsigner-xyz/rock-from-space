@@ -32,7 +32,7 @@ agent/prompts/add-collection.md
 agent/checklists/pre-deploy.md
 agent/checklists/privacy-audit.md
 agent/checklists/release.md
-docs/plans/plan-07-local-editorial-control-panel.md
+docs/plans/plan-07-obsidian-first-agentic-workflow.md
 ```
 
 ## Tasks

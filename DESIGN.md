@@ -83,7 +83,7 @@ components:
 
 ## Overview
 
-Rock from Space needs a neutral, content-first default design for static websites generated from Obsidian-compatible Markdown vaults.
+Rock from Space needs a neutral, content-first default design for static websites generated from Rock from Space structured Obsidian-compatible Markdown vaults.
 
 This design pass was informed by a Dembrandt extraction of the Medium article `https://medium.com/espanol/renovando-el-foco-de-medium-3cfd6a1d884c`, saved locally under `reports/dembrandt/`. The extraction showed a restrained editorial system: white background, near-black text, muted gray metadata, green accent, pill controls, compact UI typography, and a serif-led reading surface.
 
@@ -92,11 +92,13 @@ The goal is not to copy Medium's brand or proprietary fonts. The goal is to pres
 ## Design principles
 
 - Content first: notes, topics, metadata and relationships are the interface.
+- Obsidian-first: the vault and frontmatter carry editorial intent; the public site renders audited output.
 - Editorial calm: large readable headings, comfortable article measure, muted metadata and minimal chrome.
 - Static first: HTML and CSS should carry the baseline experience without client-side JavaScript.
 - Accessible by default: readable contrast, semantic landmarks, visible focus states and keyboard-friendly navigation.
 - Generic by default: no domain-specific images, icons, logos or visual metaphors.
 - Agent-friendly conventions: tokens and component patterns should be explicit enough for coding agents to preserve consistency.
+- No admin chrome: do not design a public admin panel or CMS UI as part of the default public site.
 
 ## Source evidence
 
@@ -143,6 +145,8 @@ Default routes should use simple, predictable layouts:
 - Note detail: title, metadata, body, topics, backlinks.
 - Topics index: topic list with note counts.
 - Topic detail: description plus related notes.
+
+The public UI should assume the RFS vault structure (`index.md`, `Notes/`, `Topics/`, future `Pages/` and `Assets/`) instead of trying to visually compensate for arbitrary source-vault structures.
 
 Recommended widths:
 
@@ -211,5 +215,6 @@ When editing UI:
 - Prefer CSS variables and semantic classes over scattered raw values.
 - Keep public pages useful with JavaScript disabled.
 - Do not hide content problems in UI; fix or report them through the audit pipeline.
+- Do not add admin-panel affordances to public pages. Operational state belongs in reports, docs, skills and future local-only tooling, not in `dist/` by default.
 - If adding visual dependencies such as fonts or icons, document them here and verify production build behavior.
 - Use Dembrandt extractions as evidence, not as a license to clone another site's brand.

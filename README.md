@@ -4,30 +4,30 @@
 
 # Rock from Space
 
-Rock from Space is an open-source toolkit for building production-ready Astro websites from an Obsidian-compatible Markdown vault.
+Rock from Space is an open-source, Obsidian-first toolkit for building production-ready Astro websites from a Rock from Space structured Markdown vault.
 
 It is designed around a simple idea:
 
 > Portable editorial source. Audited public export. Cloud-ready static website.
 
-The project is intentionally agnostic: no private paths, no personal project assumptions, no fixed domain model, and no dependency on a specific LLM provider.
+The project is intentionally strict at the vault boundary: it avoids private paths and personal project assumptions, but it does expect users and agents to adopt the Rock from Space vault structure instead of importing arbitrary Obsidian layouts.
 
 ## Why
 
 Many Markdown/Obsidian publishing workflows are either too local, too coupled to a personal vault, or too close to a blog starter. Rock from Space aims to be a safer publishing pipeline:
 
-- edit and organize content in an Obsidian-compatible vault;
+- edit and organize content in Obsidian using the Rock from Space vault structure;
 - export only explicitly public content;
 - audit privacy and content integrity before publishing;
 - generate typed indexes for Astro;
 - build a static website that can be deployed to cloud hosting/CDNs;
-- include portable agent instructions so LLMs can operate the system safely.
+- include portable agent instructions so LLMs can operate the vault and publishing pipeline safely.
 
 ## Core flow
 
 ```text
-Obsidian-compatible editorial vault
-        ↓ curate / edit / link
+Rock from Space structured Obsidian vault
+        ↓ curate / edit / link with humans or LLM agents
 Public export
         ↓ normalize / audit / sync
 content/
@@ -43,14 +43,15 @@ Local-first describes the editorial/source workflow. It does **not** mean local-
 
 ## Design principles
 
-- **Agnostic by default**: no domain-specific assumptions.
+- **Opinionated vault contract**: one expected RFS vault structure instead of arbitrary Obsidian imports.
+- **Agnostic content**: no domain-specific assumptions.
 - **Privacy by design**: never publish a whole vault accidentally.
 - **TypeScript-first**: use TypeScript for Astro, generated data contracts and project tooling when JavaScript would otherwise be used.
 - **Static-first**: prefer static Astro output; opt into SSR/adapters only when a template needs runtime behavior.
 - **SOLID-ish architecture**: small modules, explicit boundaries, dependency injection where useful, no hidden global state.
 - **Deterministic pipeline**: export, index and audit scripts should be safe to rerun.
 - **Cloud-ready output**: build artifacts must work in CI/CD and static hosting.
-- **Agent-friendly**: `AGENTS.md`, skills, prompts and checklists are part of the product, not an afterthought.
+- **Agentic by design**: `AGENTS.md`, repo-local skills, prompts and checklists are part of the product, not an afterthought.
 
 ## Repository map
 
@@ -93,9 +94,12 @@ The implementation roadmap lives in:
 - `docs/plans/plan-04-generic-collections-and-templates.md`
 - `docs/plans/plan-05-agentic-operations-package.md`
 - `docs/plans/plan-06-hardening-and-publishability.md`
-- `docs/plans/plan-07-local-editorial-control-panel.md`
-- `docs/plans/plan-08-multi-publication-vault-profiles.md`
+- `docs/plans/plan-07-obsidian-first-agentic-workflow.md`
+- `docs/plans/plan-08-multi-publication-vault-profiles.md` (deferred; current focus is one RFS-structured vault)
 - `docs/plans/plan-09-real-vault-compatibility.md`
+- `docs/plans/plan-10-agentic-skills-and-references.md`
+- `docs/guides/preparing-a-project-vault.md`
+- `docs/guides/obsidian-authoring-workflow.md`
 
 ## Commands
 
@@ -109,6 +113,8 @@ pnpm run content:index
 pnpm run audit:content
 pnpm run content:export -- --report
 pnpm run audit:content -- --report
+pnpm run content:doctor
+pnpm run content:status
 pnpm run test
 pnpm run build
 pnpm run check
@@ -144,7 +150,21 @@ Deployment guidance lives in `docs/deployment/static-hosting.md`; production smo
 
 ## Collections, taxonomies and frontmatter
 
-`rfs.config.json` includes explicit `collections` and `taxonomies` contracts while preserving the existing `/notes/` and `/topics/` routes.
+`rfs.config.json` includes explicit `collections` and `taxonomies` contracts while preserving the existing `/notes/` and `/topics/` routes. The default product contract is an RFS-structured Obsidian vault, not arbitrary vault-shape detection.
+
+Default vault shape:
+
+```text
+index.md
+Notes/
+Topics/
+Pages/
+Assets/
+Drafts/
+Private/
+```
+
+Future metadata such as `template`, `summary`, `order`, `featured`, `image`, `imageAlt` and `imageCaption` should be added as explicit frontmatter contracts before templates depend on them.
 
 Current default:
 
@@ -156,13 +176,18 @@ Current default:
 
 The exporter parses real Obsidian-compatible YAML frontmatter, including multiline arrays and extra editorial metadata, then normalizes only schema-approved public fields into `content/`. Extra properties are ignored unless they are blocked/private fields, which fail closed for publishable notes.
 
+`publish.requireValue` may be a boolean, string or number. This supports source vault gates such as `publicationStatus: public-ready` while keeping exported public Markdown normalized to `publish: true`.
+
 Minimum public validation fails before deploy when a publishable/exported item has an empty or missing `title`, non-boolean `publish`, or `topics` that is not an array of non-empty strings.
+
+Taxonomy field, route and UI label are configurable in generated data, but the current Astro route folders still implement one primary taxonomy under `/topics/` and `/topics/[slug]/`. Full arbitrary taxonomy routes belong to later routing work.
 
 Generated contracts currently include:
 
 - `src/generated/pages.json`
 - `src/generated/collections.json`
 - `src/generated/topics.json`
+- `src/generated/taxonomies.json`
 - `src/generated/links.json`
 - `src/generated/meta.json`
 
@@ -175,7 +200,7 @@ pnpm install --frozen-lockfile
 pnpm run deploy:check
 ```
 
-`deploy:check` exports public content, generates indexes, audits the public surface, builds Astro and runs typecheck/tests. For agent/operator workflows, `content:export` and `audit:content` also support `-- --report` to write ignored local JSON reports under `reports/`.
+`deploy:check` exports public content, generates indexes, audits the public surface, builds Astro and runs typecheck/tests. For agent/operator workflows, `content:export` and `audit:content` also support `-- --report` to write ignored local JSON reports under `reports/`. `pnpm run content:doctor` / `content:status` runs export, index and audit together and writes `reports/doctor-report.json` with a human-friendly summary for preparing realistic project vaults.
 
 ## License
 
@@ -205,6 +230,6 @@ Rock from Space includes portable agent materials:
 - `agent/prompts/` for repeatable tasks such as publishing from a vault, reviewing public output, adding a collection, troubleshooting failed audits and preparing release notes;
 - `agent/checklists/` for pre-deploy, privacy audit, route smoke-test and release verification.
 
-Agents should treat `content/` and `dist/` as public surfaces and run audit/build checks before declaring work complete.
+Agents should treat Obsidian vault files as the editorial source, `content/` and `dist/` as public surfaces, and `reports/` as local evidence. They should edit the RFS vault structure directly, run `content:doctor`, then run audit/build checks before declaring work complete.
 
 `pnpm run check` runs Astro validation, TypeScript typechecking and the unit test suite. The test suite includes pure content utilities and integration fixtures for export/index/audit behavior.

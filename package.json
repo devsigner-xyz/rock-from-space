@@ -10,6 +10,8 @@
     "content:export": "tsx scripts/export-from-vault.ts",
     "content:index": "tsx scripts/build-content-indexes.ts",
     "audit:content": "tsx scripts/audit-public-content.ts",
+    "content:doctor": "tsx scripts/content-doctor.ts",
+    "content:status": "pnpm run content:doctor",
     "test": "vitest run",
     "build": "pnpm run content:export && pnpm run content:index && pnpm run audit:content && astro build",
     "check": "astro check && tsc --noEmit && pnpm run test",

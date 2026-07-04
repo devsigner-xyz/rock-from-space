@@ -16,7 +16,7 @@ import {
   toPosix,
   writeJson
 } from './content.ts';
-import type { CollectionConfig, PublicCollectionIndex, PublicPage, PublicTopic, RfsConfig, TaxonomyConfig } from './content.ts';
+import type { CollectionConfig, PublicCollectionIndex, PublicPage, PublicTaxonomyIndex, PublicTopic, RfsConfig, TaxonomyConfig } from './content.ts';
 
 export interface ExportPublicContentOptions {
   vaultRoot: string;
@@ -74,7 +74,7 @@ export async function exportPublicContent(options: ExportPublicContentOptions): 
     const title = getString(normalized['title'], path.basename(relative, '.md'));
     const topics = getStringArray(normalized['topics']);
     const publicFrontmatter = Object.fromEntries(
-      Object.entries(normalized).filter(([field]) => field !== 'title' && field !== 'publish' && field !== 'topics')
+      Object.entries(normalized).filter(([field]) => !['title', 'publish', options.publish.requireField, 'topics'].includes(field))
     );
     const exportedFrontmatter = { title, publish: true, topics, ...publicFrontmatter };
     const normalizedMarkdown = serializeMarkdown(exportedFrontmatter, parsed.body);
@@ -115,6 +115,7 @@ export interface ContentIndexes {
   pages: PublicPage[];
   topics: PublicTopic[];
   collections: PublicCollectionIndex[];
+  taxonomies: PublicTaxonomyIndex[];
   links: Array<{ from: string; to: string; label: string }>;
   meta: {
     pageCount: number;
@@ -129,7 +130,7 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
   const files = await listMarkdownFiles(options.contentRoot);
   const collections = options.collections ?? [];
   const taxonomies = options.taxonomies ?? [];
-  const topicTaxonomy = taxonomies.find((taxonomy) => taxonomy.name === 'topics' || taxonomy.field === 'topics');
+  const topicTaxonomy = primaryTaxonomy(taxonomies);
 
   const basePages: Omit<PublicPage, 'backlinks' | 'bodyHtml'>[] = [];
   const titleToRoute = new Map<string, string>();
@@ -227,12 +228,21 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
       template: collection.template,
       source: collection.source,
       schema: collection.schema,
-      pages: collectionPages.map((page) => ({ title: page.title, slug: page.slug, path: page.path, topics: page.topics })),
+      pages: collectionPages.map((page) => ({ title: page.title, slug: page.slug, path: page.path, route: page.route, topics: page.topics })),
       pageCount: collectionPages.length
     };
   });
 
   const topics = Array.from(topicsByTitle.values()).sort((a, b) => a.title.localeCompare(b.title));
+  const taxonomyIndexes: PublicTaxonomyIndex[] = taxonomies.map((taxonomy) => ({
+    name: taxonomy.name,
+    field: taxonomy.field,
+    route: taxonomy.route,
+    label: taxonomy.label ?? titleCase(taxonomy.name),
+    source: taxonomy.source ?? null,
+    template: taxonomy.template,
+    pageCount: taxonomy === topicTaxonomy ? topics.length : 0
+  }));
   const links = pages.flatMap((page) => page.links.map((target) => ({ from: page.slug, to: titleToSlug.get(target) ?? slugify(target), label: target })));
   const meta = {
     pageCount: pages.length,
@@ -246,9 +256,18 @@ export async function buildContentIndexes(options: BuildContentIndexesOptions): 
     pages: pages.sort((a, b) => a.title.localeCompare(b.title)),
     topics,
     collections: collectionIndexes.sort((a, b) => a.name.localeCompare(b.name)),
+    taxonomies: taxonomyIndexes.sort((a, b) => a.name.localeCompare(b.name)),
     links,
     meta
   };
+}
+
+function primaryTaxonomy(taxonomies: TaxonomyConfig[]): TaxonomyConfig | undefined {
+  return taxonomies.find((taxonomy) => taxonomy.name === 'topics') ?? taxonomies.find((taxonomy) => taxonomy.field === 'topics') ?? taxonomies[0];
+}
+
+function titleCase(value: string): string {
+  return value.replace(/[-_]+/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 function routeForPage(
@@ -268,6 +287,7 @@ export async function writeContentIndexes(indexes: ContentIndexes, generatedRoot
   await writeJson(`${generatedRoot}/pages.json`, indexes.pages);
   await writeJson(`${generatedRoot}/topics.json`, indexes.topics);
   await writeJson(`${generatedRoot}/collections.json`, indexes.collections);
+  await writeJson(`${generatedRoot}/taxonomies.json`, indexes.taxonomies);
   await writeJson(`${generatedRoot}/links.json`, indexes.links);
   await writeJson(`${generatedRoot}/meta.json`, indexes.meta);
 }
@@ -339,12 +359,12 @@ export async function auditPublicContent(options: AuditPublicContentOptions): Pr
           });
           continue;
         }
-        if (parsed.frontmatter[options.publish.requireField] !== options.publish.requireValue) {
+        if (parsed.frontmatter['publish'] !== true) {
           addFinding({
             severity: 'failure',
             category: 'frontmatter',
             path: relative,
-            message: `public export without ${options.publish.requireField}: ${String(options.publish.requireValue)}`
+            message: 'public export must normalize publish to true'
           });
         }
         for (const blocked of options.blockedFrontmatterFields) {

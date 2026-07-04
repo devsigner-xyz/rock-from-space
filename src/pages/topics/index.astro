@@ -1,22 +1,25 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import topicsRaw from '../../generated/topics.json';
+import taxonomiesRaw from '../../generated/taxonomies.json';
 
 interface PublicTopic { title: string; slug: string; noteCount: number; description: string; }
+interface TaxonomyIndexItem { name: string; route: string; label: string; }
 const topics = topicsRaw as PublicTopic[];
+const taxonomy = (taxonomiesRaw as TaxonomyIndexItem[])[0] ?? { name: 'topics', route: '/topics', label: 'Topics' };
 ---
-<BaseLayout title="Topics — Rock from Space Demo">
+<BaseLayout title={`${taxonomy.label} — Rock from Space Demo`}>
   <section class="hero">
     <p class="kicker">Generated index</p>
-    <h1>Topics</h1>
-    <p>Topics are generated from note frontmatter and optional topic pages.</p>
+    <h1>{taxonomy.label}</h1>
+    <p>{taxonomy.label} are generated from public frontmatter and optional term pages.</p>
   </section>
 
   <div class="grid">
     {topics.map((topic) => (
-      <a class="card" href={`/topics/${topic.slug}/`}>
+      <a class="card" href={`${taxonomy.route}/${topic.slug}/`}>
         <strong>{topic.title}</strong>
-        <p>{topic.noteCount} related note{topic.noteCount === 1 ? '' : 's'}</p>
+        <p>{topic.noteCount} related page{topic.noteCount === 1 ? '' : 's'}</p>
       </a>
     ))}
   </div>

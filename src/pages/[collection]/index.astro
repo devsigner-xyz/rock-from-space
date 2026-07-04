@@ -6,7 +6,7 @@ interface PublicCollectionIndex {
   name: string;
   route: string;
   template: string;
-  pages: Array<{ title: string; slug: string; topics: string[] }>;
+  pages: Array<{ title: string; slug: string; route: string; topics: string[] }>;
 }
 
 export function getStaticPaths() {
@@ -26,7 +26,7 @@ const { collection } = Astro.props as { collection: PublicCollectionIndex };
 
   <div class="grid">
     {collection.pages.map((page) => (
-      <a class="card" href={`${collection.route}/${page.slug}/`}>
+      <a class="card" href={page.route}>
         <strong>{page.title}</strong>
         <p>{page.topics.join(', ') || 'No topics'}</p>
       </a>

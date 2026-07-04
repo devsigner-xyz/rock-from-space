@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import pagesRaw from '../../generated/pages.json';
 
-interface PageIndexItem { title: string; slug: string; kind: 'note' | 'topic' | 'index'; topics: string[]; }
+interface PageIndexItem { title: string; slug: string; kind: 'note' | 'topic' | 'index' | 'collection'; route: string; topics: string[]; }
 const notes = (pagesRaw as PageIndexItem[]).filter((page) => page.kind === 'note');
 ---
 <BaseLayout title="Notes — Rock from Space Demo">
@@ -14,7 +14,7 @@ const notes = (pagesRaw as PageIndexItem[]).filter((page) => page.kind === 'note
 
   <div class="grid">
     {notes.map((note) => (
-      <a class="card" href={`/notes/${note.slug}/`}>
+      <a class="card" href={note.route}>
         <strong>{note.title}</strong>
         <p>{note.topics.join(', ') || 'No topics'}</p>
       </a>

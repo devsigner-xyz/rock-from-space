@@ -1,7 +1,9 @@
 ---
 import '../styles/global.css';
+import taxonomiesRaw from '../generated/taxonomies.json';
 
 const { title = 'Rock from Space Demo', description = 'An Obsidian-compatible Markdown vault rendered with Astro.' } = Astro.props;
+const primaryTaxonomy = (taxonomiesRaw as Array<{ route: string; label: string }>)[0] ?? { route: '/topics', label: 'Topics' };
 ---
 <!doctype html>
 <html lang="en">
@@ -16,7 +18,7 @@ const { title = 'Rock from Space Demo', description = 'An Obsidian-compatible Ma
       <a class="site-title" href="/">Rock from Space</a>
       <nav aria-label="Primary navigation">
         <a href="/notes/">Notes</a>
-        <a href="/topics/">Topics</a>
+        <a href={`${primaryTaxonomy.route}/`}>{primaryTaxonomy.label}</a>
       </nav>
     </header>
     <main class="page-shell">

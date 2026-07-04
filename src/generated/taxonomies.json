@@ -1,0 +1,11 @@
+[
+  {
+    "name": "topics",
+    "field": "topics",
+    "route": "/topics",
+    "label": "Topics",
+    "source": "Topics/**",
+    "template": "topic",
+    "pageCount": 3
+  }
+]

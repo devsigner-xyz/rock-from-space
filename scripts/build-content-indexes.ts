@@ -14,5 +14,5 @@ const indexes = await buildContentIndexes({
 await writeContentIndexes(indexes);
 
 console.log(
-  `Generated indexes: ${indexes.pages.length} pages, ${indexes.meta.noteCount} notes, ${indexes.topics.length} topics, ${indexes.collections.length} collections, ${indexes.links.length} links`
+  `Generated indexes: ${indexes.pages.length} pages, ${indexes.meta.noteCount} notes, ${indexes.topics.length} topics, ${indexes.collections.length} collections, ${indexes.taxonomies.length} taxonomies, ${indexes.links.length} links`
 );

@@ -22,6 +22,7 @@ const TaxonomyConfigSchema = z.object({
   name: z.string().min(1),
   field: z.string().min(1),
   route: z.string().min(1),
+  label: z.string().min(1).optional(),
   source: z.string().min(1).optional(),
   template: z.string().min(1).default('taxonomy')
 }).strict();
@@ -42,7 +43,7 @@ const ConfigSchema = z.object({
   }),
   publish: z.object({
     requireField: z.string(),
-    requireValue: z.boolean(),
+    requireValue: z.union([z.boolean(), z.string(), z.number()]),
     output: z.string()
   }),
   routes: z.object({
@@ -107,6 +108,16 @@ export interface PublicTopic {
   noteCount: number;
 }
 
+export interface PublicTaxonomyIndex {
+  name: string;
+  field: string;
+  route: string;
+  label: string;
+  source: string | null;
+  template: string;
+  pageCount: number;
+}
+
 export interface PublicCollectionIndex {
   name: string;
   route: string;
@@ -120,6 +131,7 @@ export interface PublicCollectionIndex {
     title: string;
     slug: string;
     path: string;
+    route: string;
     topics: string[];
   }>;
   pageCount: number;

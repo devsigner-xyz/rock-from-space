@@ -120,6 +120,77 @@ describe('content pipeline integration', () => {
     expect(exported).not.toContain('created:');
   });
 
+  it('supports string and number publish gates while normalizing exported content to publish true', async () => {
+    const vaultRoot = path.join(await tempDir(), 'source');
+    const outputRoot = path.join(await tempDir(), 'content');
+    await mkdir(path.join(vaultRoot, 'Notes'), { recursive: true });
+    await writeFile(
+      path.join(vaultRoot, 'Notes/String Gate.md'),
+      '---\ntitle: "String Gate"\npublicationStatus: "public-ready"\ntopics: ["Workflow"]\n---\n\n# String Gate\n',
+      'utf8'
+    );
+    await writeFile(
+      path.join(vaultRoot, 'Notes/Number Gate.md'),
+      '---\ntitle: "Number Gate"\nvisibility: 1\ntopics: ["Workflow"]\n---\n\n# Number Gate\n',
+      'utf8'
+    );
+    await writeFile(
+      path.join(vaultRoot, 'Notes/Draft.md'),
+      '---\ntitle: "Draft"\npublicationStatus: "draft"\ntopics: ["Workflow"]\n---\n\n# Draft\n',
+      'utf8'
+    );
+
+    const stringGate = await exportPublicContent({
+      vaultRoot,
+      outputRoot,
+      allow: ['Notes/**'],
+      ignore: [],
+      publish: { requireField: 'publicationStatus', requireValue: 'public-ready', output: 'content' },
+      blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      collections: [{ ...notesCollection, schema: { required: ['title'], optional: ['topics', 'publicationStatus'] } }],
+      taxonomies: [topicsTaxonomy]
+    });
+    expect(stringGate.exported).toEqual(['Notes/String Gate.md']);
+    expect(stringGate.skipped).toEqual(
+      expect.arrayContaining([
+        { path: 'Notes/Draft.md', reason: 'not-published' },
+        { path: 'Notes/Number Gate.md', reason: 'not-published' }
+      ])
+    );
+    const stringExport = await readFile(path.join(outputRoot, 'Notes/String Gate.md'), 'utf8');
+    expect(stringExport).toContain('publish: true');
+    expect(stringExport).not.toContain('publicationStatus');
+
+    const audit = await auditPublicContent({
+      scanRoots: [outputRoot],
+      contentRoot: outputRoot,
+      cwd: path.dirname(outputRoot),
+      forbiddenPatterns: ['/home/', 'password', 'secret', 'api_key', 'token'],
+      blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      allowedEmbedDomains: [],
+      publish: { requireField: 'publicationStatus', requireValue: 'public-ready', output: 'content' },
+      failOnBrokenWikilinks: true,
+      collections: [notesCollection],
+      taxonomies: [topicsTaxonomy]
+    });
+    expect(audit.failures).toEqual([]);
+
+    const numberGate = await exportPublicContent({
+      vaultRoot,
+      outputRoot,
+      allow: ['Notes/**'],
+      ignore: [],
+      publish: { requireField: 'visibility', requireValue: 1, output: 'content' },
+      blockedFrontmatterFields: ['private', 'secret', 'internal'],
+      collections: [{ ...notesCollection, schema: { required: ['title'], optional: ['topics', 'visibility'] } }],
+      taxonomies: [topicsTaxonomy]
+    });
+    expect(numberGate.exported).toEqual(['Notes/Number Gate.md']);
+    const numberExport = await readFile(path.join(outputRoot, 'Notes/Number Gate.md'), 'utf8');
+    expect(numberExport).toContain('publish: true');
+    expect(numberExport).not.toContain('visibility');
+  });
+
   it('generates a topic route from note metadata even without a Topics term page', async () => {
     const outputRoot = path.join(await tempDir(), 'content');
     await exportPublicContent({
