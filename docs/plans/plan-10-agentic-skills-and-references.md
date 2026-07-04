@@ -23,6 +23,15 @@ agent/
 
 There is no universal LLM-agent standard yet. Markdown files with obvious names are the most portable contract. `AGENTS.md` is the nearest common convention; `agent/skills/*/SKILL.md` is Hermes/Claude-skills inspired but still readable by any LLM.
 
+## Current status
+
+As of `3c10f56 feat: modularize agentic skills package`, Plan 10 is advanced but not fully closed:
+
+- Phase 10A is implemented: `rock-from-space-operator` is concise and delegates durable detail to clean references under `agent/skills/rock-from-space-operator/references/`.
+- Phase 10B is implemented: `rfs-obsidian-editor` and `rfs-privacy-auditor` exist as focused repo-local skills.
+- Phase 10C is mostly implemented: `agent/prompts/execute-agentic-skills-plan.md` exists and the main docs link the agentic package.
+- Remaining work should be small alignment slices: keep prompts and checklists synced with the modular skills, remove stale wording when found, and avoid introducing `.agents/` except as documented future compatibility.
+
 ## Non-goals
 
 - Do not create autonomous background agents.
@@ -131,6 +140,8 @@ agent/prompts/execute-agentic-skills-plan.md
 
 The prompt should be short enough to paste into a new session and should instruct the agent to load context, avoid deploy/push unless asked, update references/skills, and verify with tests/checks.
 
+Status: implemented. Keep it aligned with the focused skills and current verification contract when Plan 10 changes.
+
 ### Task 7: Link the plan
 
 Update:
@@ -138,6 +149,8 @@ Update:
 - `README.md`
 - `docs/plans/master-plan.md`
 - `agent/skills/rock-from-space-operator/SKILL.md` if useful.
+
+Status: implemented in the main roadmap/docs. Continue to keep `README.md`, `AGENTS.md`, `docs/plans/master-plan.md` and `rock-from-space-operator` aligned when new agent materials are added.
 
 ## Done when
 
